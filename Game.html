@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Random Arcade Portal</title>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --accent: #3b82f6;
+            --accent-hover: #2563eb;
+            --text: #f8fafc;
+            --text-muted: #94a3b8;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 5px;
+            background: linear-gradient(to right, #60a5fa, #a78bfa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .controls {
+            margin-bottom: 25px;
+        }
+
+        .btn {
+            background-color: var(--accent);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        }
+
+        .btn:hover {
+            background-color: var(--accent-hover);
+            transform: translateY(-2px);
+        }
+
+        /* Game Card Container */
+        .game-card {
+            background-color: var(--card-bg);
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            width: 100%;
+            max-width: 500px;
+            padding: 25px;
+            text-align: center;
+            box-sizing: border-box;
+            border: 1px solid #334155;
+            display: none;
+        }
+
+        .game-card.active {
+            display: block;
+            animation: fadeIn 0.4s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h2 {
+            margin-top: 0;
+            color: #60a5fa;
+            margin-bottom: 10px;
+        }
+
+        .game-content {
+            margin: 15px 0;
+            min-height: 150px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .score-display {
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        /* ==================== GAME 1: CLICKER ==================== */
+        .click-target {
+            width: 100px;
+            height: 100px;
+            background-color: #ef4444;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            box-shadow: 0 6px 0 #b91c1c;
+            user-select: none;
+        }
+        .click-target:active {
+            transform: translateY(4px);
+            box-shadow: 0 2px 0 #b91c1c;
+        }
+
+        /* ==================== GAME 2: COLOR MATCHER ==================== */
+        .color-options {
+            display: flex;
+            gap: 10px;
+        }
+        .color-btn {
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            color: white;
+        }
+
+        /* ==================== GAME 3: GUESS THE NUMBER ==================== */
+        input[type="number"] {
+            background-color: #0f172a;
+            border: 2px solid #334155;
+            color: white;
+            padding: 10px;
+            border-radius: 6px;
+            font-size: 1.2rem;
+            width: 80px;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        /* ==================== GAME 4: TIC-TAC-TOE ==================== */
+        .ttt-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 80px);
+            grid-gap: 8px;
+            margin-bottom: 15px;
+        }
+        .ttt-cell {
+            width: 80px;
+            height: 80px;
+            background-color: #0f172a;
+            border: 2px solid #334155;
+            border-radius: 8px;
+            font-size: 2rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            user-select: none;
+            color: #f8fafc;
+        }
+        .ttt-cell.taken {
+            cursor: not-allowed;
+        }
+
+        /* ==================== GAME 5: ROCK PAPER SCISSORS ==================== */
+        .rps-choices {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        .rps-btn {
+            font-size: 2rem;
+            background-color: #334155;
+            border: none;
+            padding: 15px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: transform 0.1s;
+        }
+        .rps-btn:hover {
+            transform: scale(1.1);
+            background-color: #475569;
+        }
+
+        /* ==================== GAME 6: SNAKE ==================== */
+        #snake-canvas {
+            background-color: #0f172a;
+            border: 2px solid #334155;
+            border-radius: 8px;
+        }
+        .d-pad {
+            display: grid;
+            grid-template-columns: repeat(3, 50px);
+            grid-gap: 5px;
+            margin-top: 10px;
+        }
+        .d-btn {
+            background-color: #334155;
+            color: white;
+            border: none;
+            padding: 10px;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>⚡ The Random Arcade ⚡</h1>
+        <p style="color: var(--text-muted)">Can't decide? Click below for a random game!</p>
+    </header>
+
+    <div class="controls">
+        <button class="btn" onclick="selectRandomGame()">🎲 Roll a New Game</button>
+    </div>
+
+    <!-- GAME 1: CLICKER MAYHEM -->
+    <div id="game-clicker" class="game-card">
+        <h2>Clicker Mayhem</h2>
+        <p style="color: var(--text-muted)">Click the red button! Fast! 10 second limit.</p>
+        <div class="game-content">
+            <div id="clicker-timer" class="score-display">Time: 10s</div>
+            <div id="clicker-score" class="score-display">Clicks: 0</div>
+            <div id="clicker-btn" class="click-target" onclick="clickTarget()">CLICK!</div>
+        </div>
+        <button class="btn" style="background-color: #475569;" onclick="startClicker()">Reset Game</button>
+    </div>
+
+    <!-- GAME 2: COLOR MATCHER -->
+    <div id="game-color" class="game-card">
+        <h2>Color Matcher</h2>
+        <p style="color: var(--text-muted)">Match the name of the word, not its color!</p>
+        <div class="game-content">
+            <div id="color-score" class="score-display">Score: 0</div>
+            <div id="color-word" style="font-size: 2.5rem; font-weight: bold; margin-bottom: 15px;">RED</div>
+            <div class="color-options">
+                <button class="color-btn" style="background-color: #ef4444;" onclick="guessColor('red')">Red</button>
+                <button class="color-btn" style="background-color: #3b82f6;" onclick="guessColor('blue')">Blue</button>
+                <button class="color-btn" style="background-color: #10b981;" onclick="guessColor('green')">Green</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- GAME 3: GUESS THE NUMBER -->
+    <div id="game-guess" class="game-card">
+        <h2>Mystery Number</h2>
+        <p style="color: var(--text-muted)">Guess the secret number between 1 and 50!</p>
+        <div class="game-content">
+            <input type="number" id="guess-input" min="1" max="50" placeholder="?">
+            <button class="btn" onclick="checkGuess()">Submit Guess</button>
+            <p id="guess-feedback" style="margin-top: 15px; font-weight: bold; color: #10b981;"></p>
+        </div>
+        <button class="btn" style="background-color: #475569;" onclick="startGuessingGame()">Reset Code</button>
+    </div>
+
+    <!-- GAME 4: TIC-TAC-TOE -->
+    <div id="game-ttt" class="game-card">
+        <h2>Tic-Tac-Toe</h2>
+        <p style="color: var(--text-muted)">Beat the CPU! You are X, AI is O.</p>
+        <div class="game-content">
+            <div id="ttt-status" class="score-display">Your Turn</div>
+            <div class="ttt-grid" id="ttt-grid">
+                <div class="ttt-cell" onclick="playTTT(0)"></div>
+                <div class="ttt-cell" onclick="playTTT(1)"></div>
+                <div class="ttt-cell" onclick="playTTT(2)"></div>
+                <div class="ttt-cell" onclick="playTTT(3)"></div>
+                <div class="ttt-cell" onclick="playTTT(4)"></div>
+                <div class="ttt-cell" onclick="playTTT(5)"></div>
+                <div class="ttt-cell" onclick="playTTT(6)"></div>
+                <div class="ttt-cell" onclick="playTTT(7)"></div>
+                <div class="ttt-cell" onclick="playTTT(8)"></div>
+            </div>
+        </div>
+        <button class="btn" style="background-color: #475569;" onclick="startTTT()">Reset Match</button>
+    </div>
+
+    <!-- GAME 5: ROCK PAPER SCISSORS -->
+    <div id="game-rps" class="game-card">
+        <h2>Rock, Paper, Scissors</h2>
+        <p style="color: var(--text-muted)">First to 5 points wins!</p>
+        <div class="game-content">
+            <div id="rps-score" class="score-display">Player: 0 | CPU: 0</div>
+            <div class="rps-choices">
+                <button class="rps-btn" onclick="playRPS('✊')">✊</button>
+                <button class="rps-btn" onclick="playRPS('✋')">✋</button>
+                <button class="rps-btn" onclick="playRPS('✌️')">✌️</button>
+            </div>
+            <div id="rps-result" style="font-size: 1.1rem; min-height: 50px; text-align: center;">Make your move!</div>
+        </div>
+        <button class="btn" style="background-color: #475569;" onclick="startRPS()">Reset Score</button>
+    </div>
+
+    <!-- GAME 6: SNAKE -->
+    <div id="game-snake" class="game-card">
+        <h2>Retro Snake</h2>
+        <p style="color: var(--text-muted)">Use WASD/Arrows or the buttons below!</p>
+        <div class="game-content">
+            <div id="snake-score" class="score-display">Score: 0</div>
+            <canvas id="snake-canvas" width="240" height="240"></canvas>
+            
+            <!-- Mobile on-screen D-Pad -->
+            <div class="d-pad">
+                <div></div>
+                <button class="d-btn" onclick="changeSnakeDir('UP')">▲</button>
+                <div></div>
+                <button class="d-btn" onclick="changeSnakeDir('LEFT')">◀</button>
+                <button class="d-btn" style="background-color: #1e293b; cursor: default;">•</button>
+                <button class="d-btn" onclick="changeSnakeDir('RIGHT')">▶</button>
+                <div></div>
+                <button class="d-btn" onclick="changeSnakeDir('DOWN')">▼</button>
+                <div></div>
+            </div>
+        </div>
+        <button class="btn" style="background-color: #475569;" onclick="startSnake()">Reset Game</button>
+    </div>
+
+    <script>
+        const games = ['game-clicker', 'game-color', 'game-guess', 'game-ttt', 'game-rps', 'game-snake'];
+        let activeGameId = '';
+
+        function selectRandomGame() {
+            // Clean up old loops
+            clearInterval(clickerTimer);
+            clearInterval(snakeGameInterval);
+
+            if (activeGameId) {
+                document.getElementById(activeGameId).classList.remove('active');
+            }
+
+            let availableGames = games.filter(g => g !== activeGameId);
+            const randomGame = availableGames[Math.floor(Math.random() * availableGames.length)];
+            
+            activeGameId = randomGame;
+            document.getElementById(randomGame).classList.add('active');
+
+            if (randomGame === 'game-clicker') startClicker();
+            if (randomGame === 'game-color') startColorGame();
+            if (randomGame === 'game-guess') startGuessingGame();
+            if (randomGame === 'game-ttt') startTTT();
+            if (randomGame === 'game-rps') startRPS();
+            if (randomGame === 'game-snake') startSnake();
+        }
+
+        // ==========================================
+        // GAME 1: CLICKER MAYHEM
+        // ==========================================
+        let clickCount = 0;
+        let timeLeft = 10;
+        let clickerTimer;
+        let clickerActive = false;
+
+        function startClicker() {
+            clearInterval(clickerTimer);
+            clickCount = 0;
+            timeLeft = 10;
+            clickerActive = true;
+            document.getElementById('clicker-score').innerText = `Clicks: ${clickCount}`;
+            document.getElementById('clicker-timer').innerText = `Time: ${timeLeft}s`;
+            
+            clickerTimer = setInterval(() => {
+                timeLeft--;
+                document.getElementById('clicker-timer').innerText = `Time: ${timeLeft}s`;
+                if (timeLeft <= 0) {
+                    clearInterval(clickerTimer);
+                    clickerActive = false;
+                    alert(`Time's up! You scored ${clickCount} clicks!`);
+                }
+            }, 1000);
+        }
+
+        function clickTarget() {
+            if (!clickerActive) return;
+            clickCount++;
+            document.getElementById('clicker-score').innerText = `Clicks: ${clickCount}`;
+        }
+
+        // ==========================================
+        // GAME 2: COLOR MATCHER
+        // ==========================================
+        let colorScore = 0;
+        let correctColorName = '';
+        const colorPalette = { red: '#ef4444', blue: '#3b82f6', green: '#10b981' };
+
+        function startColorGame() {
+            colorScore = 0;
+            document.getElementById('color-score').innerText = `Score: ${colorScore}`;
+            nextColorRound();
+        }
+
+        function nextColorRound() {
+            const colors = ['red', 'blue', 'green'];
+            correctColorName = colors[Math.floor(Math.random() * colors.length)];
+            let displayColorHex = colorPalette[colors[Math.floor(Math.random() * colors.length)]];
+            const wordDisplay = document.getElementById('color-word');
+            wordDisplay.innerText = correctColorName.toUpperCase();
+            wordDisplay.style.color = displayColorHex;
+        }
+
+        function guessColor(chosenColor) {
+            if (chosenColor === correctColorName) {
+                colorScore++;
+                document.getElementById('color-score').innerText = `Score: ${colorScore}`;
+                nextColorRound();
+            } else {
+                alert(`Oops! Wrong match. Final Score: ${colorScore}`);
+                startColorGame();
+            }
+        }
+
+        // ==========================================
+        // GAME 3: GUESS THE NUMBER
+        // ==========================================
+        let secretNumber = 0;
+
+        function startGuessingGame() {
+            secretNumber = Math.floor(Math.random() * 50) + 1;
+            document.getElementById('guess-input').value = '';
+            document.getElementById('guess-feedback').innerText = "Make your guess!";
+        }
+
+        function checkGuess() {
+            const userGuess = parseInt(document.getElementById('guess-input').value);
+            const feedback = document.getElementById('guess-feedback');
+            if (isNaN(userGuess) || userGuess < 1 || userGuess > 50) {
+                feedback.innerText = "Between 1 and 50!";
+                feedback.style.color = "#f87171";
+                return;
+            }
+            if (userGuess === secretNumber) {
+                feedback.innerText = "🎉 CORRECT! Nice job!";
+                feedback.style.color = "#34d399";
+            } else {
+                feedback.innerText = userGuess < secretNumber ? "Too low! ↑" : "Too high! ↓";
+                feedback.style.color = "#60a5fa";
+            }
+        }
+
+        // ==========================================
+        // GAME 4: TIC-TAC-TOE
+        // ==========================================
+        let tttBoard = Array(9).fill('');
+        let tttActive = true;
+
+        function startTTT() {
+            tttBoard = Array(9).fill('');
+            tttActive = true;
+            document.getElementById('ttt-status').innerText = "Your Turn (X)";
+            document.querySelectorAll('.ttt-cell').forEach((cell, i) => {
+                cell.innerText = '';
+                cell.classList.remove('taken');
+            });
+        }
+
+        function playTTT(index) {
+            if (!tttActive || tttBoard[index] !== '') return;
+            
+            makeMove(index, 'X');
+            if (checkTTTWin('X')) {
+                document.getElementById('ttt-status').innerText = "🎉 You Won!";
+                tttActive = false;
+                return;
+            }
+            if (tttBoard.every(cell => cell !== '')) {
+                document.getElementById('ttt-status').innerText = "Draw Game! 🤝";
+                tttActive = false;
+                return;
+            }
+
+            document.getElementById('ttt-status').innerText = "CPU is thinking...";
+            setTimeout(cpuTTT, 400);
+        }
+
+        function makeMove(index, marker) {
+            tttBoard[index] = marker;
+            const cell = document.getElementById('ttt-grid').children[index];
+            cell.innerText = marker;
+            cell.classList.add('taken');
+            cell.style.color = marker === 'X' ? '#60a5fa' : '#f87171';
+        }
+
+        function cpuTTT() {
+            if (!tttActive) return;
+            let freeCells = tttBoard.map((val, idx) => val === '' ? idx : null).filter(val => val !== null);
+            if (freeCells.length > 0) {
+                let randomCell = freeCells[Math.floor(Math.random() * freeCells.length)];
+                makeMove(randomCell, 'O');
+                if (checkTTTWin('O')) {
+                    document.getElementById('ttt-status').innerText = "CPU Wins! 🤖";
+                    tttActive = false;
+                } else if (tttBoard.every(cell => cell !== '')) {
+                    document.getElementById('ttt-status').innerText = "Draw Game! 🤝";
+                    tttActive = false;
+                } else {
+                    document.getElementById('ttt-status').innerText = "Your Turn (X)";
+                }
+            }
+        }
+
+        function checkTTTWin(player) {
+            const wins = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+            return wins.some(comb => comb.every(idx => tttBoard[idx] === player));
+        }
+
+        // ==========================================
+        // GAME 5: ROCK PAPER SCISSORS
+        // ==========================================
+        let pScore = 0, cScore = 0;
+        const rpsBeats = { '✊': '✌️', '✋': '✊', '✌️': '✋' };
+
+        function startRPS() {
+            pScore = 0; cScore = 0;
+            document.getElementById('rps-score').innerText = "Player: 0 | CPU: 0";
+            document.getElementById('rps-result').innerText = "First to 5 wins! Make a choice.";
+        }
+
+        function playRPS(pChoice) {
+            if (pScore >= 5 || cScore >= 5) return;
+            const choices = ['✊', '✋', '✌️'];
+            const cChoice = choices[Math.floor(Math.random() * 3)];
+            let result = '';
+
+            if (pChoice === cChoice) {
+                result = `Draw! Both picked ${pChoice}`;
+            } else if (rpsBeats[pChoice] === cChoice) {
+                pScore++;
+                result = `You Win! ${pChoice} beats ${cChoice}`;
+            } else {
+                cScore++;
+                result = `You Lose! ${cChoice} beats ${pChoice}`;
+            }
+
+            document.getElementById('rps-score').innerText = `Player: ${pScore} | CPU: ${cScore}`;
+            document.getElementById('rps-result').innerText = result;
+
+            if (pScore === 5) {
+                document.getElementById('rps-result').innerText += "\n🏆 Champion! You won the match!";
+            } else if (cScore === 5) {
+                document.getElementById('rps-result').innerText += "\n🤖 CPU won! Try again.";
+            }
+        }
+
+        // ==========================================
+        // GAME 6: RETRO SNAKE
+        // ==========================================
+        const canvas = document.getElementById('snake-canvas');
+        const ctx = canvas.getContext('2d');
+        const grid = 12;
+        let snake = [];
+        let apple = { x: 0, y: 0 };
+        let dx = grid, dy = 0;
+        let snakeScore = 0;
+        let snakeGameInterval;
+
+        function startSnake() {
+            clearInterval(snakeGameInterval);
+            snake = [{ x: grid * 5, y: grid * 5 }];
+            dx = grid; dy = 0;
+            snakeScore = 0;
+            document.getElementById('snake-score').innerText = `Score: ${snakeScore}`;
+            spawnApple();
+            snakeGameInterval = setInterval(updateSnake, 120);
+        }
+
+        function spawnApple() {
+            apple.x = Math.floor(Math.random() * (canvas.width / grid)) * grid;
+            apple.y = Math.floor(Math.random() * (canvas.height / grid)) * grid;
+        }
+
+        function updateSnake() {
+            // Move Head
+            const head = { x: snake[0].x + dx, y: snake[0].y + dy };
+
+            // Wall Collisions
+            if (head.x < 0 || head.x >= canvas.width || head.y < 0 || head.y >= canvas.height) {
+                gameOverSnake();
+                return;
+            }
+
+            // Body Collisions
+            for (let cell of snake) {
+                if (head.x === cell.x && head.y === cell.y) {
+                    gameOverSnake();
+                    return;
+                }
+            }
+
+            snake.unshift(head);
+
+            // Eating Apple
+            if (head.x === apple.x && head.y === apple.y) {
+                snakeScore += 10;
+                document.getElementById('snake-score').innerText = `Score: ${snakeScore}`;
+                spawnApple();
+            } else {
+                snake.pop();
+            }
+
+            // Draw everything
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw Apple
+            ctx.fillStyle = '#ef4444';
+            ctx.fillRect(apple.x, apple.y, grid - 2, grid - 2);
+
+            // Draw Snake
+            ctx.fillStyle = '#10b981';
+            snake.forEach((cell, idx) => {
+                ctx.fillStyle = idx === 0 ? '#34d399' : '#10b981';
+                ctx.fillRect(cell.x, cell.y, grid - 2, grid - 2);
+            });
+        }
+
+        function gameOverSnake() {
+            clearInterval(snakeGameInterval);
+            alert(`Game Over! Score: ${snakeScore}`);
+            startSnake();
+        }
+
+        function changeSnakeDir(dir) {
+            if (dir === 'UP' && dy === 0) { dx = 0; dy = -grid; }
+            if (dir === 'DOWN' && dy === 0) { dx = 0; dy = grid; }
+            if (dir === 'LEFT' && dx === 0) { dx = -grid; dy = 0; }
+            if (dir === 'RIGHT' && dx === 0) { dx = grid; dy = 0; }
+        }
+
+        // Listen for Keyboard Arrows
+        window.addEventListener('keydown', e => {
+            if (e.key === 'ArrowUp' || e.key === 'w') changeSnakeDir('UP');
+            if (e.key === 'ArrowDown' || e.key === 's') changeSnakeDir('DOWN');
+            if (e.key === 'ArrowLeft' || e.key === 'a') changeSnakeDir('LEFT');
+            if (e.key === 'ArrowRight' || e.key === 'd') changeSnakeDir('RIGHT');
+        });
+
+        // Auto-run random game on initial load
+        selectRandomGame();
+    </script>
+</body>
+</html>
