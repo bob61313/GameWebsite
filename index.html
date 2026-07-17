@@ -45,7 +45,7 @@
             flex-direction: column;
             align-items: center;
             width: 100%;
-            max-width: 600px;
+            max-width: 650px;
             margin-bottom: 25px;
         }
 
@@ -55,8 +55,8 @@
 
         .game-selector {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
-            gap: 12px;
+            grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+            gap: 10px;
             width: 100%;
         }
 
@@ -64,8 +64,8 @@
             background-color: var(--card-bg);
             color: var(--text);
             border: 1px solid #334155;
-            padding: 15px 10px;
-            font-size: 0.95rem;
+            padding: 12px 8px;
+            font-size: 0.85rem;
             font-weight: bold;
             border-radius: 12px;
             cursor: pointer;
@@ -73,7 +73,7 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
         }
 
         .selector-btn:hover {
@@ -91,7 +91,7 @@
         }
 
         .selector-btn span.emoji {
-            font-size: 1.8rem;
+            font-size: 1.6rem;
         }
 
         /* Game Card Container */
@@ -278,6 +278,28 @@
             border-radius: 8px;
             cursor: pointer;
         }
+
+        /* ==================== GAME 8: SPACE INVADER ==================== */
+        #space-canvas {
+            background-color: #000000;
+            border: 2px solid #334155;
+            border-radius: 8px;
+        }
+
+        /* ==================== GAME 9: MICRO RACER ==================== */
+        #racer-canvas {
+            background-color: #334155;
+            border: 2px solid #1e293b;
+            border-radius: 8px;
+        }
+
+        /* ==================== GAME 10: DINO RUNNER ==================== */
+        #dino-canvas {
+            background-color: #f7f7f7;
+            border: 2px solid #ccc;
+            border-radius: 8px;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
@@ -313,7 +335,16 @@
                 <span class="emoji">🐍</span>Snake
             </button>
             <button class="selector-btn" id="btn-game-flappy" onclick="switchGame('game-flappy')">
-                <span class="emoji">🐦</span>Flappy Bird
+                <span class="emoji">🐦</span>Flappy
+            </button>
+            <button class="selector-btn" id="btn-game-space" onclick="switchGame('game-space')">
+                <span class="emoji">🚀</span>Shooter
+            </button>
+            <button class="selector-btn" id="btn-game-racer" onclick="switchGame('game-racer')">
+                <span class="emoji">🏎️</span>Racer
+            </button>
+            <button class="selector-btn" id="btn-game-dino" onclick="switchGame('game-dino')">
+                <span class="emoji">🦖</span>Dino
             </button>
         </div>
     </div>
@@ -428,32 +459,77 @@
         <button class="btn" style="background-color: #475569;" onclick="resetFlappy()">Reset Game</button>
     </div>
 
+    <!-- GAME 8: SPACE INVADER (SHOOTING) -->
+    <div id="game-space" class="game-card">
+        <h2>Space Invader</h2>
+        <p style="color: var(--text-muted)">A/D or Left/Right Arrows to Move. SPACE to Shoot!</p>
+        <div class="game-content">
+            <div id="space-score" class="score-display">Score: 0</div>
+            <canvas id="space-canvas" width="320" height="350"></canvas>
+            <div style="display: flex; gap: 10px; margin-top: 10px; width: 100%; justify-content: center;">
+                <button class="btn" style="padding: 10px 20px; background-color: #475569;" onclick="spaceMoveLeft = true; setTimeout(() => spaceMoveLeft = false, 150)">◀ Move</button>
+                <button class="btn" style="padding: 10px 25px; background-color: #ef4444;" onclick="shootLaser()">🔥 FIRE</button>
+                <button class="btn" style="padding: 10px 20px; background-color: #475569;" onclick="spaceMoveRight = true; setTimeout(() => spaceMoveRight = false, 150)">Move ▶</button>
+            </div>
+        </div>
+        <button class="btn" style="background-color: #475569;" onclick="resetSpaceGame()">Reset Game</button>
+    </div>
+
+    <!-- GAME 9: MICRO RACER (RACING) -->
+    <div id="game-racer" class="game-card">
+        <h2>Micro Racer</h2>
+        <p style="color: var(--text-muted)">A/D, Left/Right Arrows, or Buttons to switch lanes!</p>
+        <div class="game-content">
+            <div id="racer-score" class="score-display">Score: 0</div>
+            <canvas id="racer-canvas" width="240" height="350"></canvas>
+            <div style="display: flex; gap: 15px; margin-top: 10px;">
+                <button class="btn" style="padding: 10px 25px; background-color: #475569;" onclick="moveCarLeft()">◀ Left</button>
+                <button class="btn" style="padding: 10px 25px; background-color: #475569;" onclick="moveCarRight()">Right ▶</button>
+            </div>
+        </div>
+        <button class="btn" style="background-color: #475569;" onclick="resetRacerGame()">Reset Game</button>
+    </div>
+
+    <!-- GAME 10: DINO RUNNER (OFFLINE CHROME CLONE) -->
+    <div id="game-dino" class="game-card">
+        <h2>Dino Runner</h2>
+        <p style="color: var(--text-muted)">Press SPACE, UP Arrow, or Tap/Click Canvas to jump!</p>
+        <div class="game-content">
+            <div id="dino-score" class="score-display" style="color: #475569;">Score: 0</div>
+            <canvas id="dino-canvas" width="360" height="200"></canvas>
+        </div>
+        <button class="btn" style="background-color: #475569;" onclick="resetDinoGame()">Reset Game</button>
+    </div>
+
     <script>
-        const games = ['game-clicker', 'game-color', 'game-guess', 'game-ttt', 'game-rps', 'game-snake', 'game-flappy'];
+        const games = ['game-clicker', 'game-color', 'game-guess', 'game-ttt', 'game-rps', 'game-snake', 'game-flappy', 'game-space', 'game-racer', 'game-dino'];
         let activeGameId = '';
 
         function switchGame(targetGameId) {
-            // Clean up running game intervals/loops
+            // Clean up running game loops
             clearInterval(clickerTimer);
             clearInterval(snakeGameInterval);
             clearInterval(colorTimerInterval);
             cancelAnimationFrame(flappyAnimationFrameId);
+            cancelAnimationFrame(spaceAnimationFrameId);
+            cancelAnimationFrame(racerAnimationFrameId);
+            cancelAnimationFrame(dinoAnimationFrameId);
 
-            // Hide the active game card and remove visual active tab styling
+            // Hide previous active game card
             if (activeGameId) {
                 document.getElementById(activeGameId).classList.remove('active');
                 const prevTab = getTabIdForGame(activeGameId);
                 if (prevTab) document.getElementById(prevTab).classList.remove('active-tab');
             }
 
-            // Show and set the new active game card
+            // Show current active game card
             activeGameId = targetGameId;
             document.getElementById(activeGameId).classList.add('active');
             
             const currentTab = getTabIdForGame(targetGameId);
             if (currentTab) document.getElementById(currentTab).classList.add('active-tab');
 
-            // Launch the specific game logic
+            // Launch respective game setups
             if (targetGameId === 'game-clicker') startClicker();
             if (targetGameId === 'game-color') startColorGame();
             if (targetGameId === 'game-guess') startGuessingGame();
@@ -461,6 +537,9 @@
             if (targetGameId === 'game-rps') startRPS();
             if (targetGameId === 'game-snake') startSnake();
             if (targetGameId === 'game-flappy') resetFlappy();
+            if (targetGameId === 'game-space') resetSpaceGame();
+            if (targetGameId === 'game-racer') resetRacerGame();
+            if (targetGameId === 'game-dino') resetDinoGame();
         }
 
         function getTabIdForGame(gameId) {
@@ -471,7 +550,10 @@
                 'game-ttt': 'btn-game-ttt',
                 'game-rps': 'btn-game-rps',
                 'game-snake': 'btn-game-snake',
-                'game-flappy': 'btn-game-flappy'
+                'game-flappy': 'btn-game-flappy',
+                'game-space': 'btn-game-space',
+                'game-racer': 'btn-game-racer',
+                'game-dino': 'btn-game-dino'
             };
             return mappings[gameId];
         }
@@ -969,29 +1051,549 @@
             fCtx.fillText("Press Space or Click to Restart", fCanvas.width / 2, fCanvas.height / 2 + 50);
         }
 
+        // ==========================================
+        // GAME 8: SPACE INVADER (SHOOTER)
+        // ==========================================
+        const sCanvas = document.getElementById("space-canvas");
+        const sCtx = sCanvas.getContext("2d");
+
+        let spacePlayerX = 145;
+        const spacePlayerY = 310;
+        const spacePlayerWidth = 30;
+        const spacePlayerHeight = 15;
+        let spaceMoveLeft = false;
+        let spaceMoveRight = false;
+
+        let spaceLasers = [];
+        let spaceInvaders = [];
+        let spaceScore = 0;
+        let spaceGameOver = false;
+        let spaceInvaderSpeed = 1;
+        let spaceAnimationFrameId;
+
+        function resetSpaceGame() {
+            cancelAnimationFrame(spaceAnimationFrameId);
+            spacePlayerX = 145;
+            spaceLasers = [];
+            spaceInvaders = [];
+            spaceScore = 0;
+            spaceGameOver = false;
+            spaceInvaderSpeed = 1;
+            document.getElementById('space-score').innerText = `Score: ${spaceScore}`;
+            spawnSpaceInvaders();
+            spaceLoop();
+        }
+
+        function spawnSpaceInvaders() {
+            for (let row = 0; row < 3; row++) {
+                for (let col = 0; col < 6; col++) {
+                    spaceInvaders.push({
+                        x: 35 + col * 45,
+                        y: 30 + row * 30,
+                        width: 25,
+                        height: 15,
+                        alive: true
+                    });
+                }
+            }
+        }
+
+        function shootLaser() {
+            if (activeGameId !== 'game-space' || spaceGameOver) return;
+            spaceLasers.push({
+                x: spacePlayerX + spacePlayerWidth / 2 - 2,
+                y: spacePlayerY,
+                width: 4,
+                height: 10,
+                speed: 6
+            });
+        }
+
+        function spaceLoop() {
+            if (activeGameId !== 'game-space') return;
+
+            if (spaceGameOver) {
+                drawSpaceGameOver();
+                return;
+            }
+
+            updateSpace();
+            drawSpace();
+
+            spaceAnimationFrameId = requestAnimationFrame(spaceLoop);
+        }
+
+        function updateSpace() {
+            // Player Movement
+            if (spaceMoveLeft && spacePlayerX > 0) spacePlayerX -= 4;
+            if (spaceMoveRight && spacePlayerX < sCanvas.width - spacePlayerWidth) spacePlayerX += 4;
+
+            // Update Lasers
+            for (let i = spaceLasers.length - 1; i >= 0; i--) {
+                spaceLasers[i].y -= spaceLasers[i].speed;
+                if (spaceLasers[i].y < 0) {
+                    spaceLasers.splice(i, 1);
+                }
+            }
+
+            // Move invaders and check lower boundaries
+            let edgeReached = false;
+            spaceInvaders.forEach(invader => {
+                invader.y += spaceInvaderSpeed * 0.08;
+                if (invader.y + invader.height >= spacePlayerY) {
+                    spaceGameOver = true;
+                }
+            });
+
+            // Handle hit-collisions
+            for (let lIdx = spaceLasers.length - 1; lIdx >= 0; lIdx--) {
+                let laser = spaceLasers[lIdx];
+                for (let iIdx = spaceInvaders.length - 1; iIdx >= 0; iIdx--) {
+                    let invader = spaceInvaders[iIdx];
+                    if (
+                        laser.x < invader.x + invader.width &&
+                        laser.x + laser.width > invader.x &&
+                        laser.y < invader.y + invader.height &&
+                        laser.y + laser.height > invader.y
+                    ) {
+                        spaceInvaders.splice(iIdx, 1);
+                        spaceLasers.splice(lIdx, 1);
+                        spaceScore += 10;
+                        document.getElementById('space-score').innerText = `Score: ${spaceScore}`;
+                        break;
+                    }
+                }
+            }
+
+            // Respawn Wave when all are clear
+            if (spaceInvaders.length === 0) {
+                spaceInvaderSpeed += 0.5; // Make the next round faster!
+                spawnSpaceInvaders();
+            }
+        }
+
+        function drawSpace() {
+            sCtx.clearRect(0, 0, sCanvas.width, sCanvas.height);
+
+            // Draw Ship (Green Defender)
+            sCtx.fillStyle = "#10b981";
+            sCtx.fillRect(spacePlayerX, spacePlayerY, spacePlayerWidth, spacePlayerHeight);
+            sCtx.fillRect(spacePlayerX + 10, spacePlayerY - 6, 10, 6); // Cannon
+
+            // Draw Lasers (Red energy)
+            sCtx.fillStyle = "#ef4444";
+            spaceLasers.forEach(laser => {
+                sCtx.fillRect(laser.x, laser.y, laser.width, laser.height);
+            });
+
+            // Draw Invaders (Purple aliens)
+            sCtx.fillStyle = "#a78bfa";
+            spaceInvaders.forEach(invader => {
+                sCtx.fillRect(invader.x, invader.y, invader.width, invader.height);
+                // Draw decorative glowing alien eyes
+                sCtx.fillStyle = "#000";
+                sCtx.fillRect(invader.x + 4, invader.y + 4, 3, 3);
+                sCtx.fillRect(invader.x + 18, invader.y + 4, 3, 3);
+                sCtx.fillStyle = "#a78bfa"; // reset
+            });
+        }
+
+        function drawSpaceGameOver() {
+            sCtx.fillStyle = "rgba(0, 0, 0, 0.75)";
+            sCtx.fillRect(0, 0, sCanvas.width, sCanvas.height);
+
+            sCtx.fillStyle = "#fff";
+            sCtx.textAlign = "center";
+            sCtx.font = "bold 26px Arial";
+            sCtx.fillText("SPACE MISSION FAILED", sCanvas.width / 2, sCanvas.height / 2 - 20);
+
+            sCtx.font = "16px Arial";
+            sCtx.fillText(`Final Score: ${spaceScore}`, sCanvas.width / 2, sCanvas.height / 2 + 15);
+            sCtx.fillText("Press Space/Fire to Launch Again", sCanvas.width / 2, sCanvas.height / 2 + 50);
+        }
+
+
+        // ==========================================
+        // GAME 9: MICRO RACER (RACING)
+        // ==========================================
+        const rCanvas = document.getElementById("racer-canvas");
+        const rCtx = rCanvas.getContext("2d");
+
+        const lanes = [40, 120, 200]; // X coordinate points for center of three lanes
+        let currentLane = 1; // Start in the middle lane (index 1)
+        
+        let racerScore = 0;
+        let racerGameOver = false;
+        let trafficCars = [];
+        let roadOffset = 0;
+        let racerSpeed = 4;
+        let racerAnimationFrameId;
+
+        function resetRacerGame() {
+            cancelAnimationFrame(racerAnimationFrameId);
+            currentLane = 1;
+            racerScore = 0;
+            racerGameOver = false;
+            racerSpeed = 4;
+            trafficCars = [];
+            document.getElementById('racer-score').innerText = `Score: ${racerScore}`;
+            spawnTraffic();
+            racerLoop();
+        }
+
+        function spawnTraffic() {
+            let randomLane = Math.floor(Math.random() * 3);
+            trafficCars.push({
+                x: lanes[randomLane] - 15,
+                y: -60,
+                width: 30,
+                height: 50,
+                speed: 2 + Math.random() * 2,
+                color: ["#f87171", "#fbbf24", "#60a5fa"][Math.floor(Math.random() * 3)]
+            });
+        }
+
+        function moveCarLeft() {
+            if (currentLane > 0) currentLane--;
+        }
+
+        function moveCarRight() {
+            if (currentLane < 2) currentLane++;
+        }
+
+        function racerLoop() {
+            if (activeGameId !== 'game-racer') return;
+
+            if (racerGameOver) {
+                drawRacerGameOver();
+                return;
+            }
+
+            updateRacer();
+            drawRacer();
+
+            racerAnimationFrameId = requestAnimationFrame(racerLoop);
+        }
+
+        function updateRacer() {
+            roadOffset = (roadOffset + racerSpeed) % 40;
+
+            // Handle traffic cars
+            for (let i = trafficCars.length - 1; i >= 0; i--) {
+                trafficCars[i].y += racerSpeed;
+
+                // Collision detection (Player is at static Y height 270)
+                let playerCarX = lanes[currentLane] - 15;
+                if (
+                    playerCarX < trafficCars[i].x + trafficCars[i].width &&
+                    playerCarX + 30 > trafficCars[i].x &&
+                    270 < trafficCars[i].y + trafficCars[i].height &&
+                    320 > trafficCars[i].y
+                ) {
+                    racerGameOver = true;
+                }
+
+                // Check scored points
+                if (trafficCars[i].y > rCanvas.height) {
+                    trafficCars.splice(i, 1);
+                    racerScore += 5;
+                    racerSpeed += 0.15; // Gradually increase difficulty speed
+                    document.getElementById('racer-score').innerText = `Score: ${racerScore}`;
+                }
+            }
+
+            // Constantly keep a slow trickle of cars spawning
+            if (trafficCars.length === 0 || (trafficCars[trafficCars.length - 1].y > 120 && Math.random() < 0.02)) {
+                spawnTraffic();
+            }
+        }
+
+        function drawRacer() {
+            rCtx.clearRect(0, 0, rCanvas.width, rCanvas.height);
+
+            // Draw Road Base
+            rCtx.fillStyle = "#334155";
+            rCtx.fillRect(0, 0, rCanvas.width, rCanvas.height);
+
+            // Draw Lane Dividers (animated scrolling dash lines)
+            rCtx.strokeStyle = "#fbbf24";
+            rCtx.lineWidth = 4;
+            rCtx.setLineDash([20, 20]);
+            
+            // Lane boundary 1
+            rCtx.beginPath();
+            rCtx.moveTo(80, -40 + roadOffset);
+            rCtx.lineTo(80, rCanvas.height + 40);
+            rCtx.stroke();
+
+            // Lane boundary 2
+            rCtx.beginPath();
+            rCtx.moveTo(160, -40 + roadOffset);
+            rCtx.lineTo(160, rCanvas.height + 40);
+            rCtx.stroke();
+
+            rCtx.setLineDash([]); // Reset dash setting
+
+            // Draw Traffic Cars
+            trafficCars.forEach(car => {
+                rCtx.fillStyle = car.color;
+                rCtx.fillRect(car.x, car.y, car.width, car.height);
+                // Windshield
+                rCtx.fillStyle = "#fff";
+                rCtx.fillRect(car.x + 4, car.y + 10, 22, 10);
+            });
+
+            // Draw Player Car (Bright red neon sports car)
+            let playerX = lanes[currentLane] - 15;
+            rCtx.fillStyle = "#ef4444";
+            rCtx.fillRect(playerX, 270, 30, 50);
+            // Cabin details
+            rCtx.fillStyle = "#38bdf8";
+            rCtx.fillRect(playerX + 4, 285, 22, 12);
+            // Headlights
+            rCtx.fillStyle = "#fbbf24";
+            rCtx.fillRect(playerX + 3, 270, 5, 4);
+            rCtx.fillRect(playerX + 22, 270, 5, 4);
+        }
+
+        function drawRacerGameOver() {
+            rCtx.fillStyle = "rgba(0, 0, 0, 0.7)";
+            rCtx.fillRect(0, 0, rCanvas.width, rCanvas.height);
+
+            rCtx.fillStyle = "#fff";
+            rCtx.textAlign = "center";
+            rCtx.font = "bold 26px Arial";
+            rCtx.fillText("CAR CRASHED!", rCanvas.width / 2, rCanvas.height / 2 - 20);
+
+            rCtx.font = "16px Arial";
+            rCtx.fillText(`Final Score: ${racerScore}`, rCanvas.width / 2, rCanvas.height / 2 + 15);
+            rCtx.fillText("Press Space/Click to Drive Again", rCanvas.width / 2, rCanvas.height / 2 + 50);
+        }
+
+
+        // ==========================================
+        // GAME 10: DINO RUNNER
+        // ==========================================
+        const dCanvas = document.getElementById("dino-canvas");
+        const dCtx = dCanvas.getContext("2d");
+
+        let dinoY = 140;
+        let dinoVY = 0;
+        const dinoGravity = 0.42;
+        const dinoJump = -8.2;
+        const dinoHeight = 30;
+        const dinoWidth = 20;
+        const dinoGroundLevel = 140; // baseline Y
+        let dinoIsJumping = false;
+
+        let cacti = [];
+        let dinoScore = 0;
+        let dinoGameOver = false;
+        let dinoSpeed = 4.5;
+        let dinoAnimationFrameId;
+        let dinoFrameCount = 0;
+
+        function resetDinoGame() {
+            cancelAnimationFrame(dinoAnimationFrameId);
+            dinoY = dinoGroundLevel;
+            dinoVY = 0;
+            dinoIsJumping = false;
+            cacti = [];
+            dinoScore = 0;
+            dinoSpeed = 4.5;
+            dinoFrameCount = 0;
+            dinoGameOver = false;
+            document.getElementById('dino-score').innerText = `Score: ${dinoScore}`;
+            dinoLoop();
+        }
+
+        function triggerDinoJump() {
+            if (activeGameId !== 'game-dino') return;
+            if (dinoGameOver) {
+                resetDinoGame();
+            } else if (!dinoIsJumping) {
+                dinoVY = dinoJump;
+                dinoIsJumping = true;
+            }
+        }
+
+        function dinoLoop() {
+            if (activeGameId !== 'game-dino') return;
+
+            if (dinoGameOver) {
+                drawDinoGameOver();
+                return;
+            }
+
+            updateDino();
+            drawDino();
+
+            dinoFrameCount++;
+            dinoAnimationFrameId = requestAnimationFrame(dinoLoop);
+        }
+
+        function updateDino() {
+            // Apply physics to Dino
+            dinoVY += dinoGravity;
+            dinoY += dinoVY;
+
+            if (dinoY >= dinoGroundLevel) {
+                dinoY = dinoGroundLevel;
+                dinoVY = 0;
+                dinoIsJumping = false;
+            }
+
+            // Score increases gradually over time
+            if (dinoFrameCount % 5 === 0) {
+                dinoScore++;
+                document.getElementById('dino-score').innerText = `Score: ${dinoScore}`;
+                if (dinoScore % 100 === 0) {
+                    dinoSpeed += 0.5; // Speed up the desert landscape!
+                }
+            }
+
+            // Spawn cacti obstacles
+            if (dinoFrameCount % 90 === 0 && Math.random() > 0.3) {
+                let cactusHeight = 25 + Math.floor(Math.random() * 20);
+                cacti.push({
+                    x: dCanvas.width,
+                    y: 170 - cactusHeight,
+                    width: 12 + Math.floor(Math.random() * 8),
+                    height: cactusHeight
+                });
+            }
+
+            // Move and collide cacti
+            for (let i = cacti.length - 1; i >= 0; i--) {
+                cacti[i].x -= dinoSpeed;
+
+                // Collision Box check
+                if (
+                    40 + dinoWidth > cacti[i].x && 
+                    40 < cacti[i].x + cacti[i].width && 
+                    dinoY + dinoHeight > cacti[i].y
+                ) {
+                    dinoGameOver = true;
+                }
+
+                // Clean offscreen cacti
+                if (cacti[i].x + cacti[i].width < 0) {
+                    cacti.splice(i, 1);
+                }
+            }
+        }
+
+        function drawDino() {
+            dCtx.clearRect(0, 0, dCanvas.width, dCanvas.height);
+
+            // Ground Line
+            dCtx.strokeStyle = "#555";
+            dCtx.lineWidth = 2;
+            dCtx.beginPath();
+            dCtx.moveTo(0, 170);
+            dCtx.lineTo(dCanvas.width, 170);
+            dCtx.stroke();
+
+            // Draw a cute green Cactus Obstacles
+            dCtx.fillStyle = "#15803d";
+            cacti.forEach(c => {
+                // Main trunk
+                dCtx.fillRect(c.x, c.y, c.width, c.height);
+                // Mini branch lines to look like cactus needles
+                dCtx.fillRect(c.x - 4, c.y + 8, 4, 4);
+                dCtx.fillRect(c.x + c.width, c.y + 12, 4, 4);
+            });
+
+            // Draw Retro T-Rex Dino (Dark Gray Blocky Silhouette)
+            dCtx.fillStyle = "#4b5563";
+            // Body & tail
+            dCtx.fillRect(40, dinoY, dinoWidth, dinoHeight - 6);
+            // Dino Head/Snout block
+            dCtx.fillRect(48, dinoY, 12, 10);
+            // Dino feet (moving animation)
+            if (!dinoIsJumping && (Math.floor(dinoFrameCount / 8) % 2 === 0)) {
+                dCtx.fillRect(42, dinoY + dinoHeight - 6, 4, 6); // foot 1
+            } else {
+                dCtx.fillRect(52, dinoY + dinoHeight - 6, 4, 6); // foot 2
+            }
+        }
+
+        function drawDinoGameOver() {
+            dCtx.fillStyle = "rgba(0,0,0,0.6)";
+            dCtx.fillRect(0, 0, dCanvas.width, dCanvas.height);
+
+            dCtx.fillStyle = "#fff";
+            dCtx.textAlign = "center";
+            dCtx.font = "bold 24px Arial";
+            dCtx.fillText("GAME OVER", dCanvas.width / 2, dCanvas.height / 2 - 15);
+
+            dCtx.font = "14px Arial";
+            dCtx.fillText(`Final Run Distance: ${dinoScore}m`, dCanvas.width / 2, dCanvas.height / 2 + 15);
+            dCtx.fillText("Press Space/Up Arrow to Run Again", dCanvas.width / 2, dCanvas.height / 2 + 45);
+        }
+
+
         // Global Event Listeners
         window.addEventListener('keydown', e => {
-            // General keys for other games
+            // Keys for Snake
             if (activeGameId === 'game-snake') {
                 if (e.key === 'ArrowUp' || e.key === 'w') changeSnakeDir('UP');
                 if (e.key === 'ArrowDown' || e.key === 's') changeSnakeDir('DOWN');
                 if (e.key === 'ArrowLeft' || e.key === 'a') changeSnakeDir('LEFT');
                 if (e.key === 'ArrowRight' || e.key === 'd') changeSnakeDir('RIGHT');
             }
-            // Key for Flappy Bird
+            // Keys for Flappy Bird
             if (activeGameId === 'game-flappy' && e.code === "Space") {
                 e.preventDefault(); // Stop spacebar scrolling
                 handleFlappyAction();
             }
+            // Keys for Space Invaders
+            if (activeGameId === 'game-space') {
+                if (e.key === 'ArrowLeft' || e.key === 'a') spaceMoveLeft = true;
+                if (e.key === 'ArrowRight' || e.key === 'd') spaceMoveRight = true;
+                if (e.code === 'Space') {
+                    e.preventDefault();
+                    if (spaceGameOver) {
+                        resetSpaceGame();
+                    } else {
+                        shootLaser();
+                    }
+                }
+            }
+            // Keys for Micro Racer
+            if (activeGameId === 'game-racer') {
+                if (e.key === 'ArrowLeft' || e.key === 'a') moveCarLeft();
+                if (e.key === 'ArrowRight' || e.key === 'd') moveCarRight();
+                if (e.code === 'Space' && racerGameOver) {
+                    resetRacerGame();
+                }
+            }
+            // Keys for Dino Runner
+            if (activeGameId === 'game-dino') {
+                if (e.code === 'Space' || e.key === 'ArrowUp' || e.key === 'w') {
+                    e.preventDefault();
+                    triggerDinoJump();
+                }
+            }
         });
 
-        fCanvas.addEventListener("touchstart", (e) => {
-            e.preventDefault();
-            handleFlappyAction();
+        window.addEventListener('keyup', e => {
+            if (activeGameId === 'game-space') {
+                if (e.key === 'ArrowLeft' || e.key === 'a') spaceMoveLeft = false;
+                if (e.key === 'ArrowRight' || e.key === 'd') spaceMoveRight = false;
+            }
         });
 
-        fCanvas.addEventListener("mousedown", () => {
-            handleFlappyAction();
+        // Touch & mouse listeners to handle arcade canvas clicks
+        fCanvas.addEventListener("mousedown", () => handleFlappyAction());
+        sCanvas.addEventListener("mousedown", () => {
+            if (spaceGameOver) resetSpaceGame();
+        });
+        rCanvas.addEventListener("mousedown", () => {
+            if (racerGameOver) resetRacerGame();
+        });
+        dCanvas.addEventListener("mousedown", () => {
+            triggerDinoJump();
         });
 
         // Initialize with Clicker Mayhem as the default active tab game on startup
