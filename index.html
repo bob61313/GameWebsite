@@ -247,8 +247,9 @@
     <!-- GAME 2: COLOR MATCHER -->
     <div id="game-color" class="game-card">
         <h2>Color Matcher</h2>
-        <p style="color: var(--text-muted)">Match the name of the word, not its color!</p>
+        <p style="color: var(--text-muted)">Match the word name, not its color! 60s limit.</p>
         <div class="game-content">
+            <div id="color-timer" class="score-display" style="color: #60a5fa;">Time: 60s</div>
             <div id="color-score" class="score-display">Score: 0</div>
             <div id="color-word" style="font-size: 2.5rem; font-weight: bold; margin-bottom: 15px;">RED</div>
             <div class="color-options">
@@ -274,7 +275,7 @@
     <!-- GAME 4: TIC-TAC-TOE -->
     <div id="game-ttt" class="game-card">
         <h2>Tic-Tac-Toe</h2>
-        <p style="color: var(--text-muted)">Beat the CPU! You are X, AI is O.</p>
+        <p style="color: var(--text-muted)">Beat the CPU! AI plays perfectly with Minimax.</p>
         <div class="game-content">
             <div id="ttt-status" class="score-display">Your Turn</div>
             <div class="ttt-grid" id="ttt-grid">
@@ -337,9 +338,10 @@
         let activeGameId = '';
 
         function selectRandomGame() {
-            // Clean up old loops
+            // Clean up old loops/intervals
             clearInterval(clickerTimer);
             clearInterval(snakeGameInterval);
+            clearInterval(colorTimerInterval);
 
             if (activeGameId) {
                 document.getElementById(activeGameId).classList.remove('active');
@@ -393,19 +395,38 @@
         }
 
         // ==========================================
-        // GAME 2: COLOR MATCHER
+        // GAME 2: COLOR MATCHER (With 1-Minute Timer)
         // ==========================================
         let colorScore = 0;
         let correctColorName = '';
+        let colorTimeLeft = 60;
+        let colorTimerInterval;
+        let colorGameActive = false;
         const colorPalette = { red: '#ef4444', blue: '#3b82f6', green: '#10b981' };
 
         function startColorGame() {
+            clearInterval(colorTimerInterval);
             colorScore = 0;
+            colorTimeLeft = 60;
+            colorGameActive = true;
             document.getElementById('color-score').innerText = `Score: ${colorScore}`;
+            document.getElementById('color-timer').innerText = `Time: ${colorTimeLeft}s`;
+            
+            colorTimerInterval = setInterval(() => {
+                colorTimeLeft--;
+                document.getElementById('color-timer').innerText = `Time: ${colorTimeLeft}s`;
+                if (colorTimeLeft <= 0) {
+                    clearInterval(colorTimerInterval);
+                    colorGameActive = false;
+                    alert(`Time's up! Your final score in Color Matcher is ${colorScore}!`);
+                }
+            }, 1000);
+
             nextColorRound();
         }
 
         function nextColorRound() {
+            if (!colorGameActive) return;
             const colors = ['red', 'blue', 'green'];
             correctColorName = colors[Math.floor(Math.random() * colors.length)];
             let displayColorHex = colorPalette[colors[Math.floor(Math.random() * colors.length)]];
@@ -415,12 +436,13 @@
         }
 
         function guessColor(chosenColor) {
+            if (!colorGameActive) return;
             if (chosenColor === correctColorName) {
                 colorScore++;
                 document.getElementById('color-score').innerText = `Score: ${colorScore}`;
                 nextColorRound();
             } else {
-                alert(`Oops! Wrong match. Final Score: ${colorScore}`);
+                alert(`Oops! Wrong match. Restarting game round...`);
                 startColorGame();
             }
         }
@@ -454,7 +476,7 @@
         }
 
         // ==========================================
-        // GAME 4: TIC-TAC-TOE
+        // GAME 4: TIC-TAC-TOE (With Best Choice Algorithm)
         // ==========================================
         let tttBoard = Array(9).fill('');
         let tttActive = true;
@@ -473,7 +495,7 @@
             if (!tttActive || tttBoard[index] !== '') return;
             
             makeMove(index, 'X');
-            if (checkTTTWin('X')) {
+            if (checkTTTWin(tttBoard, 'X')) {
                 document.getElementById('ttt-status').innerText = "🎉 You Won!";
                 tttActive = false;
                 return;
@@ -496,14 +518,30 @@
             cell.style.color = marker === 'X' ? '#60a5fa' : '#f87171';
         }
 
+        // Minimax Algorithm - The Best Choice Algorithm
         function cpuTTT() {
             if (!tttActive) return;
-            let freeCells = tttBoard.map((val, idx) => val === '' ? idx : null).filter(val => val !== null);
-            if (freeCells.length > 0) {
-                let randomCell = freeCells[Math.floor(Math.random() * freeCells.length)];
-                makeMove(randomCell, 'O');
-                if (checkTTTWin('O')) {
-                    document.getElementById('ttt-status').innerText = "CPU Wins! 🤖";
+            
+            let bestScore = -Infinity;
+            let bestMove;
+            
+            // Loop through all empty spots to find the optimal move
+            for (let i = 0; i < 9; i++) {
+                if (tttBoard[i] === '') {
+                    tttBoard[i] = 'O';
+                    let score = minimax(tttBoard, 0, false);
+                    tttBoard[i] = ''; // Backtrack
+                    if (score > bestScore) {
+                        bestScore = score;
+                        bestMove = i;
+                    }
+                }
+            }
+            
+            if (bestMove !== undefined) {
+                makeMove(bestMove, 'O');
+                if (checkTTTWin(tttBoard, 'O')) {
+                    document.getElementById('ttt-status').innerText = "CPU Wins! 🤖 (Unbeatable!)";
                     tttActive = false;
                 } else if (tttBoard.every(cell => cell !== '')) {
                     document.getElementById('ttt-status').innerText = "Draw Game! 🤝";
@@ -514,9 +552,39 @@
             }
         }
 
-        function checkTTTWin(player) {
+        function minimax(board, depth, isMaximizing) {
+            if (checkTTTWin(board, 'O')) return 10 - depth;
+            if (checkTTTWin(board, 'X')) return depth - 10;
+            if (board.every(cell => cell !== '')) return 0;
+
+            if (isMaximizing) {
+                let bestScore = -Infinity;
+                for (let i = 0; i < 9; i++) {
+                    if (board[i] === '') {
+                        board[i] = 'O';
+                        let score = minimax(board, depth + 1, false);
+                        board[i] = '';
+                        bestScore = Math.max(score, bestScore);
+                    }
+                }
+                return bestScore;
+            } else {
+                let bestScore = Infinity;
+                for (let i = 0; i < 9; i++) {
+                    if (board[i] === '') {
+                        board[i] = 'X';
+                        let score = minimax(board, depth + 1, true);
+                        board[i] = '';
+                        bestScore = Math.min(score, bestScore);
+                    }
+                }
+                return bestScore;
+            }
+        }
+
+        function checkTTTWin(board, player) {
             const wins = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
-            return wins.some(comb => comb.every(idx => tttBoard[idx] === player));
+            return wins.some(comb => comb.every(idx => board[idx] === player));
         }
 
         // ==========================================
@@ -585,16 +653,13 @@
         }
 
         function updateSnake() {
-            // Move Head
             const head = { x: snake[0].x + dx, y: snake[0].y + dy };
 
-            // Wall Collisions
             if (head.x < 0 || head.x >= canvas.width || head.y < 0 || head.y >= canvas.height) {
                 gameOverSnake();
                 return;
             }
 
-            // Body Collisions
             for (let cell of snake) {
                 if (head.x === cell.x && head.y === cell.y) {
                     gameOverSnake();
@@ -604,7 +669,6 @@
 
             snake.unshift(head);
 
-            // Eating Apple
             if (head.x === apple.x && head.y === apple.y) {
                 snakeScore += 10;
                 document.getElementById('snake-score').innerText = `Score: ${snakeScore}`;
@@ -613,15 +677,11 @@
                 snake.pop();
             }
 
-            // Draw everything
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             
-            // Draw Apple
             ctx.fillStyle = '#ef4444';
             ctx.fillRect(apple.x, apple.y, grid - 2, grid - 2);
 
-            // Draw Snake
-            ctx.fillStyle = '#10b981';
             snake.forEach((cell, idx) => {
                 ctx.fillStyle = idx === 0 ? '#34d399' : '#10b981';
                 ctx.fillRect(cell.x, cell.y, grid - 2, grid - 2);
@@ -641,7 +701,6 @@
             if (dir === 'RIGHT' && dx === 0) { dx = grid; dy = 0; }
         }
 
-        // Listen for Keyboard Arrows
         window.addEventListener('keydown', e => {
             if (e.key === 'ArrowUp' || e.key === 'w') changeSnakeDir('UP');
             if (e.key === 'ArrowDown' || e.key === 's') changeSnakeDir('DOWN');
@@ -649,7 +708,7 @@
             if (e.key === 'ArrowRight' || e.key === 'd') changeSnakeDir('RIGHT');
         });
 
-        // Auto-run random game on initial load
+        // Initialize a random game at launch
         selectRandomGame();
     </script>
 </body>
