@@ -39,26 +39,59 @@
             -webkit-text-fill-color: transparent;
         }
 
-        .controls {
+        /* Menu / Dashboard Layout */
+        .menu-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            max-width: 600px;
             margin-bottom: 25px;
         }
 
-        .btn {
-            background-color: var(--accent);
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            font-size: 1.1rem;
+        .random-banner {
+            margin-bottom: 20px;
+        }
+
+        .game-selector {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+            gap: 12px;
+            width: 100%;
+        }
+
+        .selector-btn {
+            background-color: var(--card-bg);
+            color: var(--text);
+            border: 1px solid #334155;
+            padding: 15px 10px;
+            font-size: 0.95rem;
             font-weight: bold;
-            border-radius: 8px;
+            border-radius: 12px;
             cursor: pointer;
             transition: all 0.2s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .selector-btn:hover {
+            border-color: var(--accent);
+            transform: translateY(-3px);
+            background-color: #1e293b;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+        }
+
+        .selector-btn.active-tab {
+            background-color: var(--accent);
+            border-color: var(--accent);
+            color: white;
             box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
         }
 
-        .btn:hover {
-            background-color: var(--accent-hover);
-            transform: translateY(-2px);
+        .selector-btn span.emoji {
+            font-size: 1.8rem;
         }
 
         /* Game Card Container */
@@ -104,6 +137,24 @@
             font-size: 1.3rem;
             font-weight: bold;
             margin-bottom: 15px;
+        }
+
+        .btn {
+            background-color: var(--accent);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        }
+
+        .btn:hover {
+            background-color: var(--accent-hover);
+            transform: translateY(-2px);
         }
 
         /* ==================== GAME 1: CLICKER ==================== */
@@ -219,17 +270,52 @@
             border-radius: 6px;
             cursor: pointer;
         }
+
+        /* ==================== GAME 7: FLAPPY BIRD ==================== */
+        #flappy-canvas {
+            background-color: #70c5ce;
+            border: 2px solid #334155;
+            border-radius: 8px;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
 
     <header>
         <h1>⚡ The Random Arcade ⚡</h1>
-        <p style="color: var(--text-muted)">Can't decide? Click below for a random game!</p>
+        <p style="color: var(--text-muted)">Pick your favorite game below, or roll the dice!</p>
     </header>
 
-    <div class="controls">
-        <button class="btn" onclick="selectRandomGame()">🎲 Roll a New Game</button>
+    <div class="menu-container">
+        <div class="random-banner">
+            <button class="btn" onclick="selectRandomGame()">🎲 Surprise Me! (Random Game)</button>
+        </div>
+        
+        <!-- Interactive Game Selection Buttons -->
+        <div class="game-selector">
+            <button class="selector-btn" id="btn-game-clicker" onclick="switchGame('game-clicker')">
+                <span class="emoji">⏱️</span>Clicker
+            </button>
+            <button class="selector-btn" id="btn-game-color" onclick="switchGame('game-color')">
+                <span class="emoji">🎨</span>Colors
+            </button>
+            <button class="selector-btn" id="btn-game-guess" onclick="switchGame('game-guess')">
+                <span class="emoji">❓</span>Mystery #
+            </button>
+            <button class="selector-btn" id="btn-game-ttt" onclick="switchGame('game-ttt')">
+                <span class="emoji">❌</span>Tic-Tac-Toe
+            </button>
+            <button class="selector-btn" id="btn-game-rps" onclick="switchGame('game-rps')">
+                <span class="emoji">✊</span>R.P.S
+            </button>
+            <button class="selector-btn" id="btn-game-snake" onclick="switchGame('game-snake')">
+                <span class="emoji">🐍</span>Snake
+            </button>
+            <button class="selector-btn" id="btn-game-flappy" onclick="switchGame('game-flappy')">
+                <span class="emoji">🐦</span>Flappy Bird
+            </button>
+        </div>
     </div>
 
     <!-- GAME 1: CLICKER MAYHEM -->
@@ -317,7 +403,6 @@
             <div id="snake-score" class="score-display">Score: 0</div>
             <canvas id="snake-canvas" width="240" height="240"></canvas>
             
-            <!-- Mobile on-screen D-Pad -->
             <div class="d-pad">
                 <div></div>
                 <button class="d-btn" onclick="changeSnakeDir('UP')">▲</button>
@@ -333,32 +418,68 @@
         <button class="btn" style="background-color: #475569;" onclick="startSnake()">Reset Game</button>
     </div>
 
+    <!-- GAME 7: FLAPPY BIRD -->
+    <div id="game-flappy" class="game-card">
+        <h2>Flappy Bird</h2>
+        <p style="color: var(--text-muted)">Tap/Click or Spacebar to flap!</p>
+        <div class="game-content">
+            <canvas id="flappy-canvas" width="320" height="400"></canvas>
+        </div>
+        <button class="btn" style="background-color: #475569;" onclick="resetFlappy()">Reset Game</button>
+    </div>
+
     <script>
-        const games = ['game-clicker', 'game-color', 'game-guess', 'game-ttt', 'game-rps', 'game-snake'];
+        const games = ['game-clicker', 'game-color', 'game-guess', 'game-ttt', 'game-rps', 'game-snake', 'game-flappy'];
         let activeGameId = '';
 
-        function selectRandomGame() {
-            // Clean up old loops/intervals
+        function switchGame(targetGameId) {
+            // Clean up running game intervals/loops
             clearInterval(clickerTimer);
             clearInterval(snakeGameInterval);
             clearInterval(colorTimerInterval);
+            cancelAnimationFrame(flappyAnimationFrameId);
 
+            // Hide the active game card and remove visual active tab styling
             if (activeGameId) {
                 document.getElementById(activeGameId).classList.remove('active');
+                const prevTab = getTabIdForGame(activeGameId);
+                if (prevTab) document.getElementById(prevTab).classList.remove('active-tab');
             }
 
+            // Show and set the new active game card
+            activeGameId = targetGameId;
+            document.getElementById(activeGameId).classList.add('active');
+            
+            const currentTab = getTabIdForGame(targetGameId);
+            if (currentTab) document.getElementById(currentTab).classList.add('active-tab');
+
+            // Launch the specific game logic
+            if (targetGameId === 'game-clicker') startClicker();
+            if (targetGameId === 'game-color') startColorGame();
+            if (targetGameId === 'game-guess') startGuessingGame();
+            if (targetGameId === 'game-ttt') startTTT();
+            if (targetGameId === 'game-rps') startRPS();
+            if (targetGameId === 'game-snake') startSnake();
+            if (targetGameId === 'game-flappy') resetFlappy();
+        }
+
+        function getTabIdForGame(gameId) {
+            const mappings = {
+                'game-clicker': 'btn-game-clicker',
+                'game-color': 'btn-game-color',
+                'game-guess': 'btn-game-guess',
+                'game-ttt': 'btn-game-ttt',
+                'game-rps': 'btn-game-rps',
+                'game-snake': 'btn-game-snake',
+                'game-flappy': 'btn-game-flappy'
+            };
+            return mappings[gameId];
+        }
+
+        function selectRandomGame() {
             let availableGames = games.filter(g => g !== activeGameId);
             const randomGame = availableGames[Math.floor(Math.random() * availableGames.length)];
-            
-            activeGameId = randomGame;
-            document.getElementById(randomGame).classList.add('active');
-
-            if (randomGame === 'game-clicker') startClicker();
-            if (randomGame === 'game-color') startColorGame();
-            if (randomGame === 'game-guess') startGuessingGame();
-            if (randomGame === 'game-ttt') startTTT();
-            if (randomGame === 'game-rps') startRPS();
-            if (randomGame === 'game-snake') startSnake();
+            switchGame(randomGame);
         }
 
         // ==========================================
@@ -395,7 +516,7 @@
         }
 
         // ==========================================
-        // GAME 2: COLOR MATCHER (With 1-Minute Timer)
+        // GAME 2: COLOR MATCHER
         // ==========================================
         let colorScore = 0;
         let correctColorName = '';
@@ -476,7 +597,7 @@
         }
 
         // ==========================================
-        // GAME 4: TIC-TAC-TOE (With Best Choice Algorithm)
+        // GAME 4: TIC-TAC-TOE (Minimax AI)
         // ==========================================
         let tttBoard = Array(9).fill('');
         let tttActive = true;
@@ -518,19 +639,17 @@
             cell.style.color = marker === 'X' ? '#60a5fa' : '#f87171';
         }
 
-        // Minimax Algorithm - The Best Choice Algorithm
         function cpuTTT() {
             if (!tttActive) return;
             
             let bestScore = -Infinity;
             let bestMove;
             
-            // Loop through all empty spots to find the optimal move
             for (let i = 0; i < 9; i++) {
                 if (tttBoard[i] === '') {
                     tttBoard[i] = 'O';
                     let score = minimax(tttBoard, 0, false);
-                    tttBoard[i] = ''; // Backtrack
+                    tttBoard[i] = '';
                     if (score > bestScore) {
                         bestScore = score;
                         bestMove = i;
@@ -701,15 +820,182 @@
             if (dir === 'RIGHT' && dx === 0) { dx = grid; dy = 0; }
         }
 
+        // ==========================================
+        // GAME 7: FLAPPY BIRD
+        // ==========================================
+        const fCanvas = document.getElementById("flappy-canvas");
+        const fCtx = fCanvas.getContext("2d");
+
+        let birdy = 150;
+        let birdx = 40;
+        let flappyVelocity = 0;
+        const flappyGravity = 0.22;
+        const flappyJump = -4.8;
+        const flappyBirdSize = 16;
+
+        let flappyPipes = [];
+        const flappyPipeWidth = 50;
+        const flappyPipeGap = 120;
+        const flappyPipeSpeed = 2;
+        let flappyFrameCount = 0;
+
+        let flappyScore = 0;
+        let flappyGameOver = false;
+        let flappyAnimationFrameId;
+
+        function resetFlappy() {
+            cancelAnimationFrame(flappyAnimationFrameId);
+            birdy = 150;
+            flappyVelocity = 0;
+            flappyPipes = [];
+            flappyScore = 0;
+            flappyFrameCount = 0;
+            flappyGameOver = false;
+            flappyLoop();
+        }
+
+        function handleFlappyAction() {
+            if (activeGameId !== 'game-flappy') return;
+            if (flappyGameOver) {
+                resetFlappy();
+            } else {
+                flappyVelocity = flappyJump;
+            }
+        }
+
+        function flappyLoop() {
+            if (activeGameId !== 'game-flappy') return;
+
+            if (flappyGameOver) {
+                drawFlappyGameOver();
+                return;
+            }
+
+            updateFlappy();
+            drawFlappy();
+
+            flappyFrameCount++;
+            flappyAnimationFrameId = requestAnimationFrame(flappyLoop);
+        }
+
+        function updateFlappy() {
+            flappyVelocity += flappyGravity;
+            birdy += flappyVelocity;
+
+            if (birdy + flappyBirdSize > fCanvas.height || birdy < 0) {
+                flappyGameOver = true;
+            }
+
+            if (flappyFrameCount % 110 === 0) {
+                const minHeight = 40;
+                const maxHeight = fCanvas.height - flappyPipeGap - minHeight;
+                const topPipeHeight = Math.floor(Math.random() * (maxHeight - minHeight + 1)) + minHeight;
+
+                flappyPipes.push({
+                    x: fCanvas.width,
+                    top: topPipeHeight,
+                    bottom: fCanvas.height - topPipeHeight - flappyPipeGap,
+                    passed: false
+                });
+            }
+
+            for (let i = flappyPipes.length - 1; i >= 0; i--) {
+                flappyPipes[i].x -= flappyPipeSpeed;
+
+                if (
+                    birdx + flappyBirdSize > flappyPipes[i].x && 
+                    birdx < flappyPipes[i].x + flappyPipeWidth && 
+                    (birdy < flappyPipes[i].top || birdy + flappyBirdSize > fCanvas.height - flappyPipes[i].bottom)
+                ) {
+                    flappyGameOver = true;
+                }
+
+                if (!flappyPipes[i].passed && flappyPipes[i].x + flappyPipeWidth < birdx) {
+                    flappyScore++;
+                    flappyPipes[i].passed = true;
+                }
+
+                if (flappyPipes[i].x + flappyPipeWidth < 0) {
+                    flappyPipes.splice(i, 1);
+                }
+            }
+        }
+
+        function drawFlappy() {
+            fCtx.clearRect(0, 0, fCanvas.width, fCanvas.height);
+
+            fCtx.fillStyle = "#70c5ce";
+            fCtx.fillRect(0, 0, fCanvas.width, fCanvas.height);
+
+            fCtx.fillStyle = "#73bf2e";
+            fCtx.strokeStyle = "#538125";
+            fCtx.lineWidth = 3;
+            
+            flappyPipes.forEach(pipe => {
+                fCtx.fillRect(pipe.x, 0, flappyPipeWidth, pipe.top);
+                fCtx.strokeRect(pipe.x, 0, flappyPipeWidth, pipe.top);
+
+                fCtx.fillRect(pipe.x, fCanvas.height - pipe.bottom, flappyPipeWidth, pipe.bottom);
+                fCtx.strokeRect(pipe.x, fCanvas.height - pipe.bottom, flappyPipeWidth, pipe.bottom);
+            });
+
+            fCtx.fillStyle = "#f8e71c";
+            fCtx.strokeStyle = "#b89e00";
+            fCtx.lineWidth = 2;
+            fCtx.fillRect(birdx, birdy, flappyBirdSize, flappyBirdSize);
+            fCtx.strokeRect(birdx, birdy, flappyBirdSize, flappyBirdSize);
+
+            fCtx.fillStyle = "#fff";
+            fCtx.font = "bold 28px Arial";
+            fCtx.textAlign = "center";
+            fCtx.shadowColor = "rgba(0, 0, 0, 0.5)";
+            fCtx.shadowBlur = 4;
+            fCtx.fillText(flappyScore, fCanvas.width / 2, 45);
+            fCtx.shadowBlur = 0;
+        }
+
+        function drawFlappyGameOver() {
+            fCtx.fillStyle = "rgba(0, 0, 0, 0.4)";
+            fCtx.fillRect(0, 0, fCanvas.width, fCanvas.height);
+
+            fCtx.fillStyle = "#fff";
+            fCtx.textAlign = "center";
+            
+            fCtx.font = "bold 32px Arial";
+            fCtx.fillText("GAME OVER", fCanvas.width / 2, fCanvas.height / 2 - 20);
+
+            fCtx.font = "18px Arial";
+            fCtx.fillText(`Final Score: ${flappyScore}`, fCanvas.width / 2, fCanvas.height / 2 + 15);
+            fCtx.fillText("Press Space or Click to Restart", fCanvas.width / 2, fCanvas.height / 2 + 50);
+        }
+
+        // Global Event Listeners
         window.addEventListener('keydown', e => {
-            if (e.key === 'ArrowUp' || e.key === 'w') changeSnakeDir('UP');
-            if (e.key === 'ArrowDown' || e.key === 's') changeSnakeDir('DOWN');
-            if (e.key === 'ArrowLeft' || e.key === 'a') changeSnakeDir('LEFT');
-            if (e.key === 'ArrowRight' || e.key === 'd') changeSnakeDir('RIGHT');
+            // General keys for other games
+            if (activeGameId === 'game-snake') {
+                if (e.key === 'ArrowUp' || e.key === 'w') changeSnakeDir('UP');
+                if (e.key === 'ArrowDown' || e.key === 's') changeSnakeDir('DOWN');
+                if (e.key === 'ArrowLeft' || e.key === 'a') changeSnakeDir('LEFT');
+                if (e.key === 'ArrowRight' || e.key === 'd') changeSnakeDir('RIGHT');
+            }
+            // Key for Flappy Bird
+            if (activeGameId === 'game-flappy' && e.code === "Space") {
+                e.preventDefault(); // Stop spacebar scrolling
+                handleFlappyAction();
+            }
         });
 
-        // Initialize a random game at launch
-        selectRandomGame();
+        fCanvas.addEventListener("touchstart", (e) => {
+            e.preventDefault();
+            handleFlappyAction();
+        });
+
+        fCanvas.addEventListener("mousedown", () => {
+            handleFlappyAction();
+        });
+
+        // Initialize with Clicker Mayhem as the default active tab game on startup
+        switchGame('game-clicker');
     </script>
 </body>
 </html>
