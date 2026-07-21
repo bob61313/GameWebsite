@@ -1,1092 +1,464 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>The Ultimate Arcade Portal</title>
-    <style>
-        :root {
-            --bg-color: #0f172a;
-            --card-bg: #1e293b;
-            --accent: #3b82f6;
-            --accent-hover: #2563eb;
-            --text: #f8fafc;
-            --text-muted: #94a3b8;
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text);
-            margin: 0;
-            padding: 10px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-height: 100vh;
-            touch-action: manipulation;
-            user-select: none;
-            -webkit-user-select: none;
-        }
-
-        header {
-            text-align: center;
-            margin-bottom: 10px;
-        }
-
-        h1 {
-            font-size: 2rem;
-            margin: 5px 0;
-            background: linear-gradient(to right, #60a5fa, #a78bfa, #f43f5e);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .menu-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            width: 100%;
-            max-width: 500px;
-            margin-bottom: 15px;
-        }
-
-        .random-banner {
-            margin-bottom: 10px;
-        }
-
-        .game-selector {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 6px;
-            width: 100%;
-        }
-
-        .selector-btn {
-            background-color: var(--card-bg);
-            color: var(--text);
-            border: 1px solid #334155;
-            padding: 8px 4px;
-            font-size: 0.75rem;
-            font-weight: bold;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 2px;
-        }
-
-        .selector-btn.active-tab {
-            background-color: var(--accent);
-            border-color: var(--accent);
-            color: white;
-        }
-
-        .selector-btn span.emoji {
-            font-size: 1.2rem;
-        }
-
-        .game-card {
-            background-color: var(--card-bg);
-            border-radius: 16px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
-            width: 100%;
-            max-width: 480px;
-            padding: 15px;
-            text-align: center;
-            box-sizing: border-box;
-            border: 1px solid #334155;
-            display: none;
-            position: relative;
-        }
-
-        .game-card.active {
-            display: block;
-            animation: fadeIn 0.3s ease;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        h2 { margin-top: 0; color: #60a5fa; margin-bottom: 5px; font-size: 1.4rem; }
-
-        .game-content {
-            margin: 10px 0;
-            min-height: 150px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            position: relative;
-        }
-
-        .score-display {
-            font-size: 1.1rem;
-            font-weight: bold;
-            margin-bottom: 8px;
-        }
-
-        .btn {
-            background-color: var(--accent);
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            font-size: 0.9rem;
-            font-weight: bold;
-            border-radius: 8px;
-            cursor: pointer;
-        }
-
-        /* CLICKER */
-        .click-target {
-            width: 90px; height: 90px; background-color: #ef4444; border-radius: 50%;
-            display: flex; align-items: center; justify-content: center; font-weight: bold;
-            box-shadow: 0 6px 0 #b91c1c; user-select: none; color: white;
-        }
-
-        /* COLOR MATCHER */
-        .color-options { display: flex; gap: 10px; }
-        .color-btn { border: none; padding: 10px 20px; border-radius: 6px; font-weight: bold; color: white; }
-
-        /* GUESS THE NUMBER */
-        input[type="number"] {
-            background-color: #0f172a; border: 2px solid #334155; color: white;
-            padding: 8px; border-radius: 6px; font-size: 1.2rem; width: 80px; text-align: center; margin-bottom: 10px;
-        }
-
-        /* TIC-TAC-TOE */
-        .ttt-grid { display: grid; grid-template-columns: repeat(3, 70px); grid-gap: 6px; }
-        .ttt-cell {
-            width: 70px; height: 70px; background-color: #0f172a; border: 2px solid #334155;
-            border-radius: 8px; font-size: 1.8rem; font-weight: bold; display: flex;
-            align-items: center; justify-content: center; color: #f8fafc;
-        }
-
-        /* ROCK PAPER SCISSORS */
-        .rps-choices { display: flex; gap: 15px; margin-bottom: 10px; }
-        .rps-btn { font-size: 2rem; background-color: #334155; border: none; padding: 10px; border-radius: 50%; }
-
-        /* CANVAS BASE */
-        canvas { border: 2px solid #334155; border-radius: 8px; max-width: 100%; height: auto; touch-action: none; }
-
-        /* BLOCK BLAST */
-        #bb-board {
-            display: grid;
-            grid-template-columns: repeat(8, 34px);
-            grid-template-rows: repeat(8, 34px);
-            gap: 2px;
-            background-color: #0f172a;
-            padding: 4px;
-            border-radius: 8px;
-            border: 2px solid #334155;
-            touch-action: none;
-        }
-        .bb-cell {
-            width: 34px; height: 34px;
-            background-color: #1e293b; border-radius: 4px;
-        }
-        .bb-cell.filled { background-color: #3b82f6; box-shadow: inset 0 0 6px rgba(255,255,255,0.4); }
-        .bb-cell.hover { background-color: #f59e0b; opacity: 0.6; }
-
-        .bb-pieces-container {
-            display: flex; justify-content: space-around; width: 100%; margin-top: 15px; min-height: 70px;
-        }
-        .bb-piece-card {
-            padding: 6px; background-color: #0f172a; border: 2px solid #334155;
-            border-radius: 8px; cursor: grab; touch-action: none;
-        }
-
-        #bb-drag-proxy {
-            position: fixed; pointer-events: none; z-index: 1000; display: none; opacity: 0.85; transform: translate(-50%, -50%);
-        }
-
-        /* MOBILE JOYSTICK & SHOOT CONTROLS */
-        .mobile-controls-layer {
-            display: flex; justify-content: space-between; align-items: center;
-            width: 100%; margin-top: 10px; padding: 0 10px; box-sizing: border-box;
-        }
-
-        .joystick-container {
-            width: 90px; height: 90px; background: rgba(255, 255, 255, 0.1);
-            border: 2px solid rgba(255, 255, 255, 0.2); border-radius: 50%;
-            position: relative; touch-action: none; display: flex; align-items: center; justify-content: center;
-        }
-
-        .joystick-thumb {
-            width: 38px; height: 38px; background: #3b82f6; border-radius: 50%;
-            position: absolute; transform: translate(0, 0); box-shadow: 0 2px 8px rgba(0,0,0,0.5);
-        }
-
-        .action-btn-container {
-            display: flex; gap: 8px;
-        }
-
-        .action-btn {
-            width: 55px; height: 55px; background: #ef4444; border-radius: 50%; border: 2px solid #f87171;
-            color: white; font-weight: bold; font-size: 1.2rem; display: flex; align-items: center; justify-content: center;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3); touch-action: manipulation;
-        }
-        .action-btn:active { transform: scale(0.92); background-color: #dc2626; }
-
-        .weapon-bar { display: flex; gap: 6px; margin-top: 6px; }
-        .weapon-btn { background-color: #334155; color: white; border: 1px solid #475569; padding: 4px 8px; border-radius: 6px; font-size: 0.75rem; }
-        .weapon-btn.active { background-color: #ef4444; border-color: #f87171; font-weight: bold; }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Arcade: Flappy Pigeon & Dino Jump</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #1a1a24;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      user-select: none;
+    }
+    .tabs {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    .tab-btn {
+      padding: 10px 24px;
+      font-size: 16px;
+      font-weight: bold;
+      border: 2px solid #4a4e69;
+      background: #22223b;
+      color: #c9ada7;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: 0.2s ease;
+    }
+    .tab-btn.active, .tab-btn:hover {
+      background: #4a4e69;
+      color: #fff;
+      border-color: #9a8c98;
+    }
+    .game-container {
+      position: relative;
+      background: #000;
+      border: 4px solid #4a4e69;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    }
+    canvas { display: block; cursor: pointer; }
+    .instructions {
+      margin-top: 14px;
+      font-size: 14px;
+      color: #9a8c98;
+      text-align: center;
+    }
+  </style>
 </head>
 <body>
 
-    <header>
-        <h1>⚡ Mobile Arcade Portal ⚡</h1>
-        <p style="color: var(--text-muted); font-size: 0.85rem; margin: 0;">Stream & Play Anywhere!</p>
-    </header>
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchGame('pigeon')">🐦 Flappy Pigeon</button>
+    <button class="tab-btn" onclick="switchGame('dino')">🦖 Dino Jump</button>
+  </div>
 
-    <div class="menu-container">
-        <div class="random-banner">
-            <button class="btn" onclick="selectRandomGame()">🎲 Surprise Game!</button>
-        </div>
-        
-        <div class="game-selector">
-            <button class="selector-btn" id="btn-game-clicker" onclick="switchGame('game-clicker')"><span class="emoji">⏱️</span>Clicker</button>
-            <button class="selector-btn" id="btn-game-color" onclick="switchGame('game-color')"><span class="emoji">🎨</span>Colors</button>
-            <button class="selector-btn" id="btn-game-guess" onclick="switchGame('game-guess')"><span class="emoji">❓</span>Mystery</button>
-            <button class="selector-btn" id="btn-game-ttt" onclick="switchGame('game-ttt')"><span class="emoji">❌</span>Tic-Tac</button>
-            <button class="selector-btn" id="btn-game-rps" onclick="switchGame('game-rps')"><span class="emoji">✊</span>R.P.S</button>
-            <button class="selector-btn" id="btn-game-snake" onclick="switchGame('game-snake')"><span class="emoji">🐍</span>Snake</button>
-            <button class="selector-btn" id="btn-game-flappy" onclick="switchGame('game-flappy')"><span class="emoji">🐦</span>Flappy</button>
-            <button class="selector-btn" id="btn-game-space" onclick="switchGame('game-space')"><span class="emoji">🚀</span>Shooter</button>
-            <button class="selector-btn" id="btn-game-racer" onclick="switchGame('game-racer')"><span class="emoji">🏎️</span>Racer</button>
-            <button class="selector-btn" id="btn-game-dino" onclick="switchGame('game-dino')"><span class="emoji">🦖</span>Dino</button>
-            <button class="selector-btn" id="btn-game-block" onclick="switchGame('game-block')"><span class="emoji">🧩</span>Block Blast</button>
-            <button class="selector-btn" id="btn-game-arena" onclick="switchGame('game-arena')"><span class="emoji">🔫</span>Arena Ops</button>
-        </div>
-    </div>
+  <div class="game-container">
+    <canvas id="gameCanvas" width="480" height="480"></canvas>
+  </div>
 
-    <!-- GAME 1: CLICKER -->
-    <div id="game-clicker" class="game-card">
-        <h2>Clicker Mayhem</h2>
-        <div class="game-content">
-            <div id="clicker-timer" class="score-display">Time: 10s</div>
-            <div id="clicker-score" class="score-display">Clicks: 0</div>
-            <div id="clicker-btn" class="click-target" onclick="clickTarget()">CLICK!</div>
-        </div>
-        <button class="btn" style="background-color: #475569;" onclick="startClicker()">Reset Game</button>
-    </div>
+  <div class="instructions">
+    Press <b>SPACEBAR</b> or <b>CLICK / TAP</b> to Flap / Jump!
+  </div>
 
-    <!-- GAME 2: COLOR MATCHER -->
-    <div id="game-color" class="game-card">
-        <h2>Color Matcher</h2>
-        <div class="game-content">
-            <div id="color-timer" class="score-display" style="color: #60a5fa;">Time: 60s</div>
-            <div id="color-score" class="score-display">Score: 0</div>
-            <div id="color-word" style="font-size: 2.2rem; font-weight: bold; margin-bottom: 12px;">RED</div>
-            <div class="color-options">
-                <button class="color-btn" style="background-color: #ef4444;" onclick="guessColor('red')">Red</button>
-                <button class="color-btn" style="background-color: #3b82f6;" onclick="guessColor('blue')">Blue</button>
-                <button class="color-btn" style="background-color: #10b981;" onclick="guessColor('green')">Green</button>
-            </div>
-        </div>
-    </div>
+  <script>
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
 
-    <!-- GAME 3: GUESS THE NUMBER -->
-    <div id="game-guess" class="game-card">
-        <h2>Mystery Number</h2>
-        <div class="game-content">
-            <input type="number" id="guess-input" min="1" max="50" placeholder="?">
-            <button class="btn" onclick="checkGuess()">Submit Guess</button>
-            <p id="guess-feedback" style="margin-top: 10px; font-weight: bold; color: #10b981;"></p>
-        </div>
-        <button class="btn" style="background-color: #475569;" onclick="startGuessingGame()">Reset Code</button>
-    </div>
+    let currentGame = 'pigeon';
+    let animationId = null;
+    let score = 0;
+    let highScorePigeon = 0;
+    let highScoreDino = 0;
+    let gameOver = false;
 
-    <!-- GAME 4: TIC-TAC-TOE -->
-    <div id="game-ttt" class="game-card">
-        <h2>Tic-Tac-Toe</h2>
-        <div class="game-content">
-            <div id="ttt-status" class="score-display">Your Turn</div>
-            <div class="ttt-grid" id="ttt-grid">
-                <div class="ttt-cell" onclick="playTTT(0)"></div><div class="ttt-cell" onclick="playTTT(1)"></div><div class="ttt-cell" onclick="playTTT(2)"></div>
-                <div class="ttt-cell" onclick="playTTT(3)"></div><div class="ttt-cell" onclick="playTTT(4)"></div><div class="ttt-cell" onclick="playTTT(5)"></div>
-                <div class="ttt-cell" onclick="playTTT(6)"></div><div class="ttt-cell" onclick="playTTT(7)"></div><div class="ttt-cell" onclick="playTTT(8)"></div>
-            </div>
-        </div>
-        <button class="btn" style="background-color: #475569;" onclick="startTTT()">Reset Match</button>
-    </div>
+    // --- INPUT HANDLING ---
+    function handleInput() {
+      if (gameOver) {
+        initGame();
+        return;
+      }
+      if (currentGame === 'pigeon') {
+        pigeon.vy = -7.5;
+        pigeon.wingUp = true;
+        setTimeout(() => pigeon.wingUp = false, 150);
+      } else if (currentGame === 'dino') {
+        if (dino.y >= dino.groundY) {
+          dino.vy = -12;
+        }
+      }
+    }
 
-    <!-- GAME 5: ROCK PAPER SCISSORS -->
-    <div id="game-rps" class="game-card">
-        <h2>Rock, Paper, Scissors</h2>
-        <div class="game-content">
-            <div id="rps-score" class="score-display">Player: 0 | CPU: 0</div>
-            <div class="rps-choices">
-                <button class="rps-btn" onclick="playRPS('✊')">✊</button>
-                <button class="rps-btn" onclick="playRPS('✋')">✋</button>
-                <button class="rps-btn" onclick="playRPS('✌️')">✌️</button>
-            </div>
-            <div id="rps-result" style="font-size: 0.9rem; min-height: 30px;">First to 5 wins!</div>
-        </div>
-        <button class="btn" style="background-color: #475569;" onclick="startRPS()">Reset Score</button>
-    </div>
+    window.addEventListener('keydown', (e) => {
+      if (e.code === 'Space') {
+        e.preventDefault();
+        handleInput();
+      }
+    });
+    canvas.addEventListener('mousedown', handleInput);
+    canvas.addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      handleInput();
+    });
 
-    <!-- GAME 6: SNAKE -->
-    <div id="game-snake" class="game-card">
-        <h2>Retro Snake</h2>
-        <div class="game-content">
-            <div id="snake-score" class="score-display">Score: 0</div>
-            <canvas id="snake-canvas" width="240" height="240"></canvas>
-            <div class="mobile-controls-layer">
-                <div class="joystick-container" id="joy-snake"><div class="joystick-thumb"></div></div>
-            </div>
-        </div>
-        <button class="btn" style="background-color: #475569;" onclick="startSnake()">Reset Game</button>
-    </div>
+    function switchGame(game) {
+      currentGame = game;
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+      event.target.classList.add('active');
+      initGame();
+    }
 
-    <!-- GAME 7: FLAPPY BIRD -->
-    <div id="game-flappy" class="game-card">
-        <h2>Flappy Bird</h2>
-        <div class="game-content">
-            <canvas id="flappy-canvas" width="300" height="320"></canvas>
-            <div class="mobile-controls-layer" style="justify-content: center; margin-top: 8px;">
-                <button class="action-btn" style="width: 120px; border-radius: 12px;" onclick="handleFlappyAction()">FLAP 🐦</button>
-            </div>
-        </div>
-        <button class="btn" style="background-color: #475569;" onclick="resetFlappy()">Reset Game</button>
-    </div>
+    function initGame() {
+      if (animationId) cancelAnimationFrame(animationId);
+      gameOver = false;
+      score = 0;
 
-    <!-- GAME 8: SPACE INVADER -->
-    <div id="game-space" class="game-card">
-        <h2>Space Invader</h2>
-        <div class="game-content">
-            <div id="space-score" class="score-display">Score: 0</div>
-            <canvas id="space-canvas" width="300" height="280"></canvas>
-            <div class="mobile-controls-layer">
-                <div class="joystick-container" id="joy-space"><div class="joystick-thumb"></div></div>
-                <div class="action-btn-container">
-                    <button class="action-btn" onclick="shootLaser()">🔥</button>
-                </div>
-            </div>
-        </div>
-        <button class="btn" style="background-color: #475569;" onclick="resetSpaceGame()">Reset Game</button>
-    </div>
+      if (currentGame === 'pigeon') {
+        initPigeonGame();
+      } else {
+        initDinoGame();
+      }
+      gameLoop();
+    }
 
-    <!-- GAME 9: MICRO RACER -->
-    <div id="game-racer" class="game-card">
-        <h2>Micro Racer</h2>
-        <div class="game-content">
-            <div id="racer-score" class="score-display">Score: 0</div>
-            <canvas id="racer-canvas" width="240" height="280"></canvas>
-            <div class="mobile-controls-layer" style="justify-content: space-around;">
-                <button class="action-btn" onclick="moveCarLeft()">◀</button>
-                <button class="action-btn" onclick="moveCarRight()">▶</button>
-            </div>
-        </div>
-        <button class="btn" style="background-color: #475569;" onclick="resetRacerGame()">Reset Game</button>
-    </div>
+    // ==========================================
+    // GAME 1: FLAPPY PIGEON
+    // ==========================================
+    let pigeon, pipes, frameCount;
 
-    <!-- GAME 10: DINO RUNNER -->
-    <div id="game-dino" class="game-card">
-        <h2>Dino Runner</h2>
-        <div class="game-content">
-            <div id="dino-score" class="score-display" style="color: #475569;">Score: 0</div>
-            <canvas id="dino-canvas" width="320" height="180" style="background-color: #f7f7f7;"></canvas>
-            <div class="mobile-controls-layer" style="justify-content: center; margin-top: 8px;">
-                <button class="action-btn" style="width: 120px; border-radius: 12px;" onclick="triggerDinoJump()">JUMP 🦖</button>
-            </div>
-        </div>
-        <button class="btn" style="background-color: #475569;" onclick="resetDinoGame()">Reset Game</button>
-    </div>
+    function initPigeonGame() {
+      pigeon = { x: 80, y: 200, vy: 0, radius: 16, wingUp: false };
+      pipes = [];
+      frameCount = 0;
+    }
 
-    <!-- GAME 11: BLOCK BLAST -->
-    <div id="game-block" class="game-card">
-        <h2>Block Blast 🧩</h2>
-        <p style="color: var(--text-muted); font-size: 0.8rem; margin: 2px 0;">Drag and drop shapes onto the board!</p>
-        <div class="game-content">
-            <div id="bb-score" class="score-display">Score: 0</div>
-            <div id="bb-board"></div>
-            <div class="bb-pieces-container" id="bb-pieces"></div>
-        </div>
-        <button class="btn" style="background-color: #475569;" onclick="resetBlockBlast()">New Game</button>
-    </div>
+    function updatePigeon() {
+      pigeon.vy += 0.42; // Gravity
+      pigeon.y += pigeon.vy;
 
-    <!-- GAME 12: ARENA SHOOTER -->
-    <div id="game-arena" class="game-card">
-        <h2>Arena Shooter 🔫</h2>
-        <div class="game-content">
-            <div id="arena-score" class="score-display">Kills: 0 | HP: 100%</div>
-            <canvas id="arena-canvas" width="340" height="250"></canvas>
-            
-            <div class="weapon-bar">
-                <button class="weapon-btn active" id="w-btn-0" onclick="setArenaWeapon(0)">Pistol 🔫</button>
-                <button class="weapon-btn" id="w-btn-1" onclick="setArenaWeapon(1)">Shotgun 💥</button>
-                <button class="weapon-btn" id="w-btn-2" onclick="setArenaWeapon(2)">Rifle ⚡</button>
-            </div>
+      // Pipe Spawning
+      frameCount++;
+      if (frameCount % 90 === 0) {
+        const gapHeight = 130;
+        const minTop = 50;
+        const maxTop = canvas.height - gapHeight - 100;
+        const top = Math.floor(Math.random() * (maxTop - minTop + 1)) + minTop;
+        pipes.push({ x: canvas.width, top: top, bottom: canvas.height - top - gapHeight, passed: false });
+      }
 
-            <div class="mobile-controls-layer">
-                <!-- Virtual Joystick Circle -->
-                <div class="joystick-container" id="joy-arena">
-                    <div class="joystick-thumb"></div>
-                </div>
-                <!-- Action Shoot Button -->
-                <div class="action-btn-container">
-                    <button class="action-btn" id="arena-shoot-btn">🔫</button>
-                </div>
-            </div>
-        </div>
-        <button class="btn" style="background-color: #475569;" onclick="resetArenaOps()">Reset Game</button>
-    </div>
+      // Check collision with floor/ceiling
+      if (pigeon.y + pigeon.radius >= canvas.height - 30 || pigeon.y - pigeon.radius <= 0) {
+        gameOver = true;
+      }
 
-    <div id="bb-drag-proxy"></div>
+      // Pipe updates & collision
+      for (let i = pipes.length - 1; i >= 0; i--) {
+        let p = pipes[i];
+        p.x -= 2.5;
 
-    <script>
-        const games = ['game-clicker', 'game-color', 'game-guess', 'game-ttt', 'game-rps', 'game-snake', 'game-flappy', 'game-space', 'game-racer', 'game-dino', 'game-block', 'game-arena'];
-        let activeGameId = '';
-
-        function switchGame(targetGameId) {
-            clearInterval(clickerTimer); clearInterval(snakeGameInterval); clearInterval(colorTimerInterval);
-            cancelAnimationFrame(flappyAnimationFrameId); cancelAnimationFrame(spaceAnimationFrameId);
-            cancelAnimationFrame(racerAnimationFrameId); cancelAnimationFrame(dinoAnimationFrameId); cancelAnimationFrame(arenaAnimationFrameId);
-
-            if (activeGameId) {
-                document.getElementById(activeGameId).classList.remove('active');
-                const prevTab = getTabIdForGame(activeGameId);
-                if (prevTab) document.getElementById(prevTab).classList.remove('active-tab');
-            }
-
-            activeGameId = targetGameId;
-            document.getElementById(activeGameId).classList.add('active');
-            const currentTab = getTabIdForGame(targetGameId);
-            if (currentTab) document.getElementById(currentTab).classList.add('active-tab');
-
-            if (targetGameId === 'game-clicker') startClicker();
-            if (targetGameId === 'game-color') startColorGame();
-            if (targetGameId === 'game-guess') startGuessingGame();
-            if (targetGameId === 'game-ttt') startTTT();
-            if (targetGameId === 'game-rps') startRPS();
-            if (targetGameId === 'game-snake') startSnake();
-            if (targetGameId === 'game-flappy') resetFlappy();
-            if (targetGameId === 'game-space') resetSpaceGame();
-            if (targetGameId === 'game-racer') resetRacerGame();
-            if (targetGameId === 'game-dino') resetDinoGame();
-            if (targetGameId === 'game-block') resetBlockBlast();
-            if (targetGameId === 'game-arena') resetArenaOps();
+        // Collision Check
+        const pipeWidth = 55;
+        if (
+          pigeon.x + pigeon.radius > p.x &&
+          pigeon.x - pigeon.radius < p.x + pipeWidth
+        ) {
+          if (pigeon.y - pigeon.radius < p.top || pigeon.y + pigeon.radius > canvas.height - p.bottom) {
+            gameOver = true;
+          }
         }
 
-        function getTabIdForGame(gameId) { return 'btn-' + gameId; }
-        function selectRandomGame() {
-            let availableGames = games.filter(g => g !== activeGameId);
-            switchGame(availableGames[Math.floor(Math.random() * availableGames.length)]);
+        // Score
+        if (!p.passed && p.x + pipeWidth < pigeon.x) {
+          p.passed = true;
+          score++;
+          if (score > highScorePigeon) highScorePigeon = score;
         }
 
-        /* VIRTUAL JOYSTICK SYSTEM */
-        function initJoystick(containerId, onMoveCallback, onEndCallback) {
-            const container = document.getElementById(containerId);
-            if (!container) return;
-            const thumb = container.querySelector('.joystick-thumb');
-            let activeTouchId = null, center = { x: 0, y: 0 };
+        // Remove off-screen pipes
+        if (p.x < -pipeWidth) pipes.splice(i, 1);
+      }
+    }
 
-            function handleStart(e) {
-                const touch = e.changedTouches ? e.changedTouches[0] : e;
-                activeTouchId = touch.identifier ?? 'mouse';
-                const rect = container.getBoundingClientRect();
-                center = { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
-                handleMove(e);
-            }
+    function drawPigeonGame() {
+      // Sky
+      ctx.fillStyle = '#70c5ce';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            function handleMove(e) {
-                if (activeTouchId === null) return;
-                let touch = null;
-                if (e.changedTouches) {
-                    for (let t of e.changedTouches) { if (t.identifier === activeTouchId) { touch = t; break; } }
-                } else touch = e;
-                if (!touch) return;
+      // City Background Hills
+      ctx.fillStyle = '#bce6eb';
+      ctx.beginPath();
+      ctx.arc(100, 480, 200, Math.PI, 0);
+      ctx.arc(350, 480, 180, Math.PI, 0);
+      ctx.fill();
 
-                let dx = touch.clientX - center.x, dy = touch.clientY - center.y;
-                let dist = Math.hypot(dx, dy), maxRadius = 30;
-                if (dist > maxRadius) { dx = (dx / dist) * maxRadius; dy = (dy / dist) * maxRadius; }
-                thumb.style.transform = `translate(${dx}px, ${dy}px)`;
-                if (onMoveCallback) onMoveCallback(dx / maxRadius, dy / maxRadius);
-            }
+      // Ground
+      ctx.fillStyle = '#ded895';
+      ctx.fillRect(0, canvas.height - 30, canvas.width, 30);
+      ctx.fillStyle = '#73bf2e';
+      ctx.fillRect(0, canvas.height - 30, canvas.width, 8);
 
-            function handleEnd(e) {
-                if (activeTouchId === null) return;
-                thumb.style.transform = `translate(0px, 0px)`;
-                activeTouchId = null;
-                if (onEndCallback) onEndCallback();
-            }
+      // Pipes (Classic Green Pipes with Caps)
+      pipes.forEach(p => {
+        const pipeWidth = 55;
+        const capHeight = 22;
 
-            container.addEventListener('touchstart', handleStart, { passive: false });
-            window.addEventListener('touchmove', handleMove, { passive: false });
-            window.addEventListener('touchend', handleEnd);
-            container.addEventListener('mousedown', handleStart);
-            window.addEventListener('mousemove', handleMove);
-            window.addEventListener('mouseup', handleEnd);
+        ctx.fillStyle = '#73bf2e';
+        ctx.strokeStyle = '#2d5a06';
+        ctx.lineWidth = 3;
+
+        // Top Pipe Body & Cap
+        ctx.fillRect(p.x, 0, pipeWidth, p.top);
+        ctx.strokeRect(p.x, 0, pipeWidth, p.top);
+        ctx.fillRect(p.x - 4, p.top - capHeight, pipeWidth + 8, capHeight);
+        ctx.strokeRect(p.x - 4, p.top - capHeight, pipeWidth + 8, capHeight);
+
+        // Bottom Pipe Body & Cap
+        const bottomY = canvas.height - p.bottom;
+        ctx.fillRect(p.x, bottomY, pipeWidth, p.bottom - 30);
+        ctx.strokeRect(p.x, bottomY, pipeWidth, p.bottom - 30);
+        ctx.fillRect(p.x - 4, bottomY, pipeWidth + 8, capHeight);
+        ctx.strokeRect(p.x - 4, bottomY, pipeWidth + 8, capHeight);
+      });
+
+      // Draw Pigeon
+      ctx.save();
+      ctx.translate(pigeon.x, pigeon.y);
+      let angle = Math.min(Math.PI / 4, Math.max(-Math.PI / 4, pigeon.vy * 0.08));
+      ctx.rotate(angle);
+
+      // Pigeon Body (Light Grey)
+      ctx.fillStyle = '#a0a5ab';
+      ctx.beginPath();
+      ctx.ellipse(0, 0, 18, 13, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = '#52575d';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      // Pigeon Neck / Head (Purple-Green Sheen)
+      ctx.fillStyle = '#6b5280';
+      ctx.beginPath();
+      ctx.arc(10, -5, 10, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Eye
+      ctx.fillStyle = '#fff';
+      ctx.beginPath();
+      ctx.arc(14, -7, 3, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = '#000';
+      ctx.beginPath();
+      ctx.arc(15, -7, 1.5, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Beak (Small orange)
+      ctx.fillStyle = '#fca311';
+      ctx.beginPath();
+      ctx.moveTo(18, -4);
+      ctx.lineTo(24, -2);
+      ctx.lineTo(18, 1);
+      ctx.closePath();
+      ctx.fill();
+
+      // Wing
+      ctx.fillStyle = '#7a808a';
+      ctx.beginPath();
+      if (pigeon.wingUp) {
+        ctx.ellipse(-3, -10, 10, 6, -Math.PI / 4, 0, Math.PI * 2);
+      } else {
+        ctx.ellipse(-3, 3, 10, 6, Math.PI / 6, 0, Math.PI * 2);
+      }
+      ctx.fill();
+
+      ctx.restore();
+
+      // Score Display
+      ctx.fillStyle = '#fff';
+      ctx.strokeStyle = '#000';
+      ctx.lineWidth = 4;
+      ctx.font = 'bold 32px sans-serif';
+      ctx.strokeText(`Score: ${score}`, 20, 45);
+      ctx.fillText(`Score: ${score}`, 20, 45);
+
+      ctx.font = 'bold 16px sans-serif';
+      ctx.strokeText(`Best: ${highScorePigeon}`, 20, 75);
+      ctx.fillText(`Best: ${highScorePigeon}`, 20, 75);
+    }
+
+    // ==========================================
+    // GAME 2: DINOSAUR JUMP OVER CACTI
+    // ==========================================
+    let dino, cacti, dinoFrame;
+
+    function initDinoGame() {
+      dino = { x: 60, y: 380, groundY: 380, vy: 0, width: 44, height: 48 };
+      cacti = [];
+      dinoFrame = 0;
+    }
+
+    function updateDino() {
+      dino.vy += 0.65; // Gravity
+      dino.y += dino.vy;
+
+      if (dino.y > dino.groundY) {
+        dino.y = dino.groundY;
+        dino.vy = 0;
+      }
+
+      dinoFrame++;
+
+      // Cactus Spawning
+      if (dinoFrame % 100 === 0) {
+        cacti.push({ x: canvas.width, width: 22 + Math.random() * 15, height: 38 + Math.random() * 18 });
+      }
+
+      // Update Cacti
+      for (let i = cacti.length - 1; i >= 0; i--) {
+        let c = cacti[i];
+        c.x -= 5;
+
+        // Collision Check
+        if (
+          dino.x < c.x + c.width - 6 &&
+          dino.x + dino.width - 6 > c.x &&
+          dino.y + dino.height > canvas.height - 52 - c.height
+        ) {
+          gameOver = true;
         }
 
-        /* 1. CLICKER MAYHEM */
-        let clickCount = 0, timeLeft = 10, clickerTimer, clickerActive = false;
-        function startClicker() {
-            clearInterval(clickerTimer); clickCount = 0; timeLeft = 10; clickerActive = true;
-            document.getElementById('clicker-score').innerText = `Clicks: ${clickCount}`;
-            document.getElementById('clicker-timer').innerText = `Time: ${timeLeft}s`;
-            clickerTimer = setInterval(() => {
-                timeLeft--; document.getElementById('clicker-timer').innerText = `Time: ${timeLeft}s`;
-                if (timeLeft <= 0) { clearInterval(clickerTimer); clickerActive = false; alert(`Time's up! You scored ${clickCount} clicks!`); }
-            }, 1000);
+        // Score
+        if (c.x < -c.width) {
+          cacti.splice(i, 1);
+          score++;
+          if (score > highScoreDino) highScoreDino = score;
         }
-        function clickTarget() { if (clickerActive) { clickCount++; document.getElementById('clicker-score').innerText = `Clicks: ${clickCount}`; } }
+      }
+    }
 
-        /* 2. COLOR MATCHER */
-        let colorScore = 0, correctColorName = '', colorTimeLeft = 60, colorTimerInterval, colorGameActive = false;
-        const colorPalette = { red: '#ef4444', blue: '#3b82f6', green: '#10b981' };
-        function startColorGame() {
-            clearInterval(colorTimerInterval); colorScore = 0; colorTimeLeft = 60; colorGameActive = true;
-            document.getElementById('color-score').innerText = `Score: ${colorScore}`;
-            document.getElementById('color-timer').innerText = `Time: ${colorTimeLeft}s`;
-            colorTimerInterval = setInterval(() => {
-                colorTimeLeft--; document.getElementById('color-timer').innerText = `Time: ${colorTimeLeft}s`;
-                if (colorTimeLeft <= 0) { clearInterval(colorTimerInterval); colorGameActive = false; alert(`Time's up! Score: ${colorScore}!`); }
-            }, 1000);
-            nextColorRound();
+    function drawDinoGame() {
+      // Desert Sky
+      ctx.fillStyle = '#f7f7f7';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // Ground Line
+      ctx.strokeStyle = '#535353';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(0, canvas.height - 50);
+      ctx.lineTo(canvas.width, canvas.height - 50);
+      ctx.stroke();
+
+      // Ground bumps
+      ctx.fillStyle = '#888';
+      for (let i = 0; i < canvas.width; i += 60) {
+        let xPos = (i - (dinoFrame * 5) % 60);
+        ctx.fillRect(xPos, canvas.height - 45, 8, 2);
+      }
+
+      // Cacti (Green Cactuses)
+      cacti.forEach(c => {
+        let cY = canvas.height - 50 - c.height;
+
+        ctx.fillStyle = '#2b9348';
+        ctx.strokeStyle = '#004b23';
+        ctx.lineWidth = 2;
+
+        // Main Trunk
+        ctx.fillRect(c.x, cY, c.width, c.height);
+        ctx.strokeRect(c.x, cY, c.width, c.height);
+
+        // Cactus Side Arms
+        let armY = cY + c.height * 0.3;
+        ctx.fillRect(c.x - 6, armY, 6, 12);
+        ctx.fillRect(c.x - 6, armY - 4, 10, 6);
+
+        ctx.fillRect(c.x + c.width, armY + 6, 6, 12);
+        ctx.fillRect(c.x + c.width - 4, armY + 12, 10, 6);
+      });
+
+      // Dinosaur (Grey Pixelated T-Rex)
+      ctx.fillStyle = '#535353';
+      let dX = dino.x;
+      let dY = dino.y;
+
+      // Head
+      ctx.fillRect(dX + 16, dY, 24, 16);
+      // Eye
+      ctx.fillStyle = '#fff';
+      ctx.fillRect(dX + 30, dY + 3, 4, 4);
+      ctx.fillStyle = '#535353';
+
+      // Body & Tail
+      ctx.fillRect(dX + 8, dY + 12, 24, 22);
+      ctx.fillRect(dX, dY + 16, 12, 10); // Tail
+      ctx.fillRect(dX - 4, dY + 14, 6, 6); // Tail tip
+
+      // Tiny Arm
+      ctx.fillRect(dX + 28, dY + 20, 8, 4);
+
+      // Running Legs Animation
+      let legAnim = Math.floor(dinoFrame / 6) % 2;
+      if (dino.y < dino.groundY) { // Jump pose
+        ctx.fillRect(dX + 10, dY + 34, 6, 8);
+        ctx.fillRect(dX + 22, dY + 34, 6, 6);
+      } else { // Running pose
+        if (legAnim === 0) {
+          ctx.fillRect(dX + 8, dY + 34, 6, 10);
+          ctx.fillRect(dX + 22, dY + 34, 6, 6);
+        } else {
+          ctx.fillRect(dX + 8, dY + 34, 6, 6);
+          ctx.fillRect(dX + 22, dY + 34, 6, 10);
         }
-        function nextColorRound() {
-            if (!colorGameActive) return;
-            const colors = ['red', 'blue', 'green'];
-            correctColorName = colors[Math.floor(Math.random() * colors.length)];
-            const wordDisplay = document.getElementById('color-word');
-            wordDisplay.innerText = correctColorName.toUpperCase();
-            wordDisplay.style.color = colorPalette[colors[Math.floor(Math.random() * colors.length)]];
-        }
-        function guessColor(chosenColor) {
-            if (!colorGameActive) return;
-            if (chosenColor === correctColorName) { colorScore++; document.getElementById('color-score').innerText = `Score: ${colorScore}`; nextColorRound(); }
-            else { alert(`Oops! Wrong match. Restarting...`); startColorGame(); }
-        }
+      }
 
-        /* 3. GUESS THE NUMBER */
-        let secretNumber = 0;
-        function startGuessingGame() { secretNumber = Math.floor(Math.random() * 50) + 1; document.getElementById('guess-input').value = ''; document.getElementById('guess-feedback').innerText = "Make your guess!"; }
-        function checkGuess() {
-            const userGuess = parseInt(document.getElementById('guess-input').value);
-            const feedback = document.getElementById('guess-feedback');
-            if (isNaN(userGuess) || userGuess < 1 || userGuess > 50) { feedback.innerText = "Between 1 and 50!"; feedback.style.color = "#f87171"; return; }
-            if (userGuess === secretNumber) { feedback.innerText = "🎉 CORRECT! Nice job!"; feedback.style.color = "#34d399"; }
-            else { feedback.innerText = userGuess < secretNumber ? "Too low! ↑" : "Too high! ↓"; feedback.style.color = "#60a5fa"; }
-        }
+      // Score Display
+      ctx.fillStyle = '#535353';
+      ctx.font = 'bold 24px monospace';
+      ctx.fillText(`HI: ${String(highScoreDino).padStart(5, '0')}  ${String(score).padStart(5, '0')}`, 230, 40);
+    }
 
-        /* 4. TIC-TAC-TOE */
-        let tttBoard = Array(9).fill(''), tttActive = true;
-        function startTTT() {
-            tttBoard = Array(9).fill(''); tttActive = true;
-            document.getElementById('ttt-status').innerText = "Your Turn (X)";
-            document.querySelectorAll('.ttt-cell').forEach(cell => { cell.innerText = ''; cell.style.color = '#f8fafc'; });
-        }
-        function playTTT(index) {
-            if (!tttActive || tttBoard[index] !== '') return;
-            makeMove(index, 'X');
-            if (checkTTTWin(tttBoard, 'X')) { document.getElementById('ttt-status').innerText = "🎉 You Won!"; tttActive = false; return; }
-            if (tttBoard.every(cell => cell !== '')) { document.getElementById('ttt-status').innerText = "Draw Game! 🤝"; tttActive = false; return; }
-            document.getElementById('ttt-status').innerText = "CPU thinking..."; setTimeout(cpuTTT, 300);
-        }
-        function makeMove(index, marker) {
-            tttBoard[index] = marker; const cell = document.getElementById('ttt-grid').children[index];
-            cell.innerText = marker; cell.style.color = marker === 'X' ? '#60a5fa' : '#f87171';
-        }
-        function cpuTTT() {
-            if (!tttActive) return;
-            let bestScore = -Infinity, bestMove;
-            for (let i = 0; i < 9; i++) {
-                if (tttBoard[i] === '') {
-                    tttBoard[i] = 'O'; let score = minimax(tttBoard, 0, false); tttBoard[i] = '';
-                    if (score > bestScore) { bestScore = score; bestMove = i; }
-                }
-            }
-            if (bestMove !== undefined) {
-                makeMove(bestMove, 'O');
-                if (checkTTTWin(tttBoard, 'O')) { document.getElementById('ttt-status').innerText = "CPU Wins! 🤖"; tttActive = false; }
-                else if (tttBoard.every(cell => cell !== '')) { document.getElementById('ttt-status').innerText = "Draw Game! 🤝"; tttActive = false; }
-                else document.getElementById('ttt-status').innerText = "Your Turn (X)";
-            }
-        }
-        function minimax(board, depth, isMaximizing) {
-            if (checkTTTWin(board, 'O')) return 10 - depth; if (checkTTTWin(board, 'X')) return depth - 10;
-            if (board.every(cell => cell !== '')) return 0;
-            if (isMaximizing) {
-                let bestScore = -Infinity; for (let i = 0; i < 9; i++) { if (board[i] === '') { board[i] = 'O'; bestScore = Math.max(minimax(board, depth + 1, false), bestScore); board[i] = ''; } }
-                return bestScore;
-            } else {
-                let bestScore = Infinity; for (let i = 0; i < 9; i++) { if (board[i] === '') { board[i] = 'X'; bestScore = Math.min(minimax(board, depth + 1, true), bestScore); board[i] = ''; } }
-                return bestScore;
-            }
-        }
-        function checkTTTWin(board, player) {
-            return [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]].some(comb => comb.every(idx => board[idx] === player));
-        }
+    // ==========================================
+    // MAIN GAME LOOP
+    // ==========================================
+    function gameLoop() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-        /* 5. ROCK PAPER SCISSORS */
-        let pScore = 0, cScore = 0; const rpsBeats = { '✊': '✌️', '✋': '✊', '✌️': '✋' };
-        function startRPS() { pScore = 0; cScore = 0; document.getElementById('rps-score').innerText = "Player: 0 | CPU: 0"; document.getElementById('rps-result').innerText = "First to 5 wins!"; }
-        function playRPS(pChoice) {
-            if (pScore >= 5 || cScore >= 5) return;
-            const choices = ['✊', '✋', '✌️'], cChoice = choices[Math.floor(Math.random() * 3)];
-            let result = '';
-            if (pChoice === cChoice) result = `Draw! Both picked ${pChoice}`;
-            else if (rpsBeats[pChoice] === cChoice) { pScore++; result = `You Win! ${pChoice} beats ${cChoice}`; }
-            else { cScore++; result = `You Lose! ${cChoice} beats ${pChoice}`; }
-            document.getElementById('rps-score').innerText = `Player: ${pScore} | CPU: ${cScore}`;
-            document.getElementById('rps-result').innerText = result;
-        }
+      if (currentGame === 'pigeon') {
+        if (!gameOver) updatePigeon();
+        drawPigeonGame();
+      } else {
+        if (!gameOver) updateDino();
+        drawDinoGame();
+      }
 
-        /* 6. SNAKE */
-        const canvas = document.getElementById('snake-canvas'), ctx = canvas.getContext('2d'), grid = 12;
-        let snake = [], apple = { x: 0, y: 0 }, dx = grid, dy = 0, snakeScore = 0, snakeGameInterval;
-        function startSnake() {
-            clearInterval(snakeGameInterval); snake = [{ x: grid * 5, y: grid * 5 }]; dx = grid; dy = 0; snakeScore = 0;
-            document.getElementById('snake-score').innerText = `Score: ${snakeScore}`;
-            spawnApple(); snakeGameInterval = setInterval(updateSnake, 120);
-        }
-        function spawnApple() { apple.x = Math.floor(Math.random() * (canvas.width / grid)) * grid; apple.y = Math.floor(Math.random() * (canvas.height / grid)) * grid; }
-        function updateSnake() {
-            const head = { x: snake[0].x + dx, y: snake[0].y + dy };
-            if (head.x < 0 || head.x >= canvas.width || head.y < 0 || head.y >= canvas.height || snake.some(c => c.x === head.x && c.y === head.y)) {
-                clearInterval(snakeGameInterval); alert(`Game Over! Score: ${snakeScore}`); startSnake(); return;
-            }
-            snake.unshift(head);
-            if (head.x === apple.x && head.y === apple.y) { snakeScore += 10; document.getElementById('snake-score').innerText = `Score: ${snakeScore}`; spawnApple(); }
-            else snake.pop();
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.fillStyle = '#ef4444'; ctx.fillRect(apple.x, apple.y, grid - 2, grid - 2);
-            snake.forEach((cell, idx) => { ctx.fillStyle = idx === 0 ? '#34d399' : '#10b981'; ctx.fillRect(cell.x, cell.y, grid - 2, grid - 2); });
-        }
-        function changeSnakeDir(dir) {
-            if (dir === 'UP' && dy === 0) { dx = 0; dy = -grid; } if (dir === 'DOWN' && dy === 0) { dx = 0; dy = grid; }
-            if (dir === 'LEFT' && dx === 0) { dx = -grid; dy = 0; } if (dir === 'RIGHT' && dx === 0) { dx = grid; dy = 0; }
-        }
-        initJoystick('joy-snake', (nx, ny) => {
-            if (Math.abs(nx) > Math.abs(ny)) { changeSnakeDir(nx > 0 ? 'RIGHT' : 'LEFT'); }
-            else { changeSnakeDir(ny > 0 ? 'DOWN' : 'UP'); }
-        });
+      if (gameOver) {
+        ctx.fillStyle = 'rgba(0,0,0,0.65)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-        /* 7. FLAPPY BIRD */
-        const fCanvas = document.getElementById("flappy-canvas"), fCtx = fCanvas.getContext("2d");
-        let birdy = 150, birdx = 40, flappyVelocity = 0, flappyPipes = [], flappyScore = 0, flappyGameOver = false, flappyAnimationFrameId, flappyFrameCount = 0;
-        function resetFlappy() {
-            cancelAnimationFrame(flappyAnimationFrameId); birdy = 150; flappyVelocity = 0; flappyPipes = []; flappyScore = 0; flappyFrameCount = 0; flappyGameOver = false; flappyLoop();
-        }
-        function handleFlappyAction() { if (activeGameId === 'game-flappy') { if (flappyGameOver) resetFlappy(); else flappyVelocity = -4.5; } }
-        function flappyLoop() {
-            if (activeGameId !== 'game-flappy') return;
-            if (flappyGameOver) { fCtx.fillStyle = "rgba(0,0,0,0.5)"; fCtx.fillRect(0,0,fCanvas.width,fCanvas.height); fCtx.fillStyle="#fff"; fCtx.textAlign="center"; fCtx.font="18px Arial"; fCtx.fillText("Game Over! Score: "+flappyScore, fCanvas.width/2, fCanvas.height/2); return; }
-            flappyVelocity += 0.22; birdy += flappyVelocity;
-            if (birdy + 16 > fCanvas.height || birdy < 0) flappyGameOver = true;
-            if (flappyFrameCount % 100 === 0) {
-                const top = Math.floor(Math.random() * 120) + 30;
-                flappyPipes.push({ x: fCanvas.width, top: top, bottom: fCanvas.height - top - 100, passed: false });
-            }
-            flappyPipes.forEach((p) => {
-                p.x -= 2;
-                if (birdx + 16 > p.x && birdx < p.x + 40 && (birdy < p.top || birdy + 16 > fCanvas.height - p.bottom)) flappyGameOver = true;
-                if (!p.passed && p.x + 40 < birdx) { flappyScore++; p.passed = true; }
-            });
-            flappyPipes = flappyPipes.filter(p => p.x + 40 > 0);
-            fCtx.fillStyle = "#70c5ce"; fCtx.fillRect(0, 0, fCanvas.width, fCanvas.height);
-            fCtx.fillStyle = "#73bf2e"; flappyPipes.forEach(p => { fCtx.fillRect(p.x, 0, 40, p.top); fCtx.fillRect(p.x, fCanvas.height - p.bottom, 40, p.bottom); });
-            fCtx.fillStyle = "#f8e71c"; fCtx.fillRect(birdx, birdy, 16, 16);
-            fCtx.fillStyle = "#fff"; fCtx.font = "bold 18px Arial"; fCtx.fillText(flappyScore, fCanvas.width / 2, 25);
-            flappyFrameCount++; flappyAnimationFrameId = requestAnimationFrame(flappyLoop);
-        }
+        ctx.fillStyle = '#fff';
+        ctx.textAlign = 'center';
+        ctx.font = 'bold 36px sans-serif';
+        ctx.fillText('GAME OVER', canvas.width / 2, canvas.height / 2 - 10);
 
-        /* 8. SPACE INVADER */
-        const sCanvas = document.getElementById("space-canvas"), sCtx = sCanvas.getContext("2d");
-        let spacePlayerX = 135, spaceMoveDir = 0, spaceLasers = [], spaceInvaders = [], spaceScore = 0, spaceGameOver = false, spaceAnimationFrameId;
-        function resetSpaceGame() {
-            cancelAnimationFrame(spaceAnimationFrameId); spacePlayerX = 135; spaceLasers = []; spaceInvaders = []; spaceScore = 0; spaceGameOver = false;
-            document.getElementById('space-score').innerText = `Score: ${spaceScore}`;
-            for (let r = 0; r < 3; r++) for (let c = 0; c < 5; c++) spaceInvaders.push({ x: 25 + c * 50, y: 25 + r * 22, width: 25, height: 15 });
-            spaceLoop();
-        }
-        function shootLaser() { if (activeGameId === 'game-space') { if (spaceGameOver) resetSpaceGame(); else spaceLasers.push({ x: spacePlayerX + 13, y: 240, width: 4, height: 10 }); } }
-        function spaceLoop() {
-            if (activeGameId !== 'game-space') return;
-            if (spaceGameOver) { sCtx.fillStyle = "rgba(0,0,0,0.7)"; sCtx.fillRect(0,0,sCanvas.width,sCanvas.height); sCtx.fillStyle="#fff"; sCtx.textAlign="center"; sCtx.font="18px Arial"; sCtx.fillText("Game Over! Score: "+spaceScore, sCanvas.width/2, sCanvas.height/2); return; }
-            spacePlayerX += spaceMoveDir * 4;
-            spacePlayerX = Math.max(0, Math.min(sCanvas.width - 30, spacePlayerX));
-            spaceLasers.forEach(l => l.y -= 6); spaceLasers = spaceLasers.filter(l => l.y > 0);
-            spaceInvaders.forEach(inv => { inv.y += 0.12; if (inv.y + 15 >= 240) spaceGameOver = true; });
-            for (let l = spaceLasers.length - 1; l >= 0; l--) {
-                for (let i = spaceInvaders.length - 1; i >= 0; i--) {
-                    if (spaceLasers[l] && spaceLasers[l].x < spaceInvaders[i].x + 25 && spaceLasers[l].x + 4 > spaceInvaders[i].x && spaceLasers[l].y < spaceInvaders[i].y + 15) {
-                        spaceInvaders.splice(i, 1); spaceLasers.splice(l, 1); spaceScore += 10;
-                        document.getElementById('space-score').innerText = `Score: ${spaceScore}`; break;
-                    }
-                }
-            }
-            sCtx.clearRect(0, 0, sCanvas.width, sCanvas.height);
-            sCtx.fillStyle = "#10b981"; sCtx.fillRect(spacePlayerX, 240, 30, 15);
-            sCtx.fillStyle = "#ef4444"; spaceLasers.forEach(l => sCtx.fillRect(l.x, l.y, l.width, l.height));
-            sCtx.fillStyle = "#a78bfa"; spaceInvaders.forEach(inv => sCtx.fillRect(inv.x, inv.y, inv.width, inv.height));
-            if (spaceInvaders.length === 0) resetSpaceGame();
-            spaceAnimationFrameId = requestAnimationFrame(spaceLoop);
-        }
-        initJoystick('joy-space', (nx) => { spaceMoveDir = nx; }, () => { spaceMoveDir = 0; });
+        ctx.font = '18px sans-serif';
+        ctx.fillText('Press SPACE or TAP to Restart', canvas.width / 2, canvas.height / 2 + 30);
+        ctx.textAlign = 'start';
+      } else {
+        animationId = requestAnimationFrame(gameLoop);
+      }
+    }
 
-        /* 9. MICRO RACER */
-        const rCanvas = document.getElementById("racer-canvas"), rCtx = rCanvas.getContext("2d");
-        const lanes = [40, 120, 200]; let currentLane = 1, racerScore = 0, racerGameOver = false, trafficCars = [], racerAnimationFrameId;
-        function resetRacerGame() {
-            cancelAnimationFrame(racerAnimationFrameId); currentLane = 1; racerScore = 0; racerGameOver = false; trafficCars = [];
-            document.getElementById('racer-score').innerText = `Score: ${racerScore}`; racerLoop();
-        }
-        function moveCarLeft() { if (currentLane > 0) currentLane--; } function moveCarRight() { if (currentLane < 2) currentLane++; }
-        function racerLoop() {
-            if (activeGameId !== 'game-racer') return;
-            if (racerGameOver) { rCtx.fillStyle = "rgba(0,0,0,0.7)"; rCtx.fillRect(0,0,rCanvas.width,rCanvas.height); rCtx.fillStyle="#fff"; rCtx.textAlign="center"; rCtx.font="18px Arial"; rCtx.fillText("CRASH! Score: "+racerScore, rCanvas.width/2, rCanvas.height/2); return; }
-            if (trafficCars.length === 0 || (trafficCars[trafficCars.length - 1].y > 100 && Math.random() < 0.03)) {
-                trafficCars.push({ x: lanes[Math.floor(Math.random() * 3)] - 15, y: -50, width: 30, height: 50 });
-            }
-            for (let i = trafficCars.length - 1; i >= 0; i--) {
-                trafficCars[i].y += 4;
-                if (lanes[currentLane] - 15 < trafficCars[i].x + 30 && lanes[currentLane] + 15 > trafficCars[i].x && 210 < trafficCars[i].y + 50 && 260 > trafficCars[i].y) racerGameOver = true;
-                if (trafficCars[i].y > rCanvas.height) { trafficCars.splice(i, 1); racerScore += 5; document.getElementById('racer-score').innerText = `Score: ${racerScore}`; }
-            }
-            rCtx.fillStyle = "#334155"; rCtx.fillRect(0, 0, rCanvas.width, rCanvas.height);
-            rCtx.fillStyle = "#f87171"; trafficCars.forEach(c => rCtx.fillRect(c.x, c.y, c.width, c.height));
-            rCtx.fillStyle = "#ef4444"; rCtx.fillRect(lanes[currentLane] - 15, 210, 30, 50);
-            racerAnimationFrameId = requestAnimationFrame(racerLoop);
-        }
-
-        /* 10. DINO RUNNER */
-        const dCanvas = document.getElementById("dino-canvas"), dCtx = dCanvas.getContext("2d");
-        let dinoY = 120, dinoVY = 0, cacti = [], dinoScore = 0, dinoGameOver = false, dinoAnimationFrameId, dinoFrameCount = 0;
-        function resetDinoGame() {
-            cancelAnimationFrame(dinoAnimationFrameId); dinoY = 120; dinoVY = 0; cacti = []; dinoScore = 0; dinoFrameCount = 0; dinoGameOver = false;
-            document.getElementById('dino-score').innerText = `Score: ${dinoScore}`; dinoLoop();
-        }
-        function triggerDinoJump() { if (activeGameId === 'game-dino') { if (dinoGameOver) resetDinoGame(); else if (dinoY >= 120) dinoVY = -8; } }
-        function dinoLoop() {
-            if (activeGameId !== 'game-dino') return;
-            if (dinoGameOver) { dCtx.fillStyle = "rgba(0,0,0,0.6)"; dCtx.fillRect(0,0,dCanvas.width,dCanvas.height); dCtx.fillStyle="#fff"; dCtx.textAlign="center"; dCtx.font="18px Arial"; dCtx.fillText("Game Over! Score: "+dinoScore, dCanvas.width/2, dCanvas.height/2); return; }
-            dinoVY += 0.42; dinoY += dinoVY; if (dinoY >= 120) { dinoY = 120; dinoVY = 0; }
-            if (dinoFrameCount % 5 === 0) { dinoScore++; document.getElementById('dino-score').innerText = `Score: ${dinoScore}`; }
-            if (dinoFrameCount % 80 === 0 && Math.random() > 0.3) cacti.push({ x: dCanvas.width, y: 125, width: 14, height: 25 });
-            for (let i = cacti.length - 1; i >= 0; i--) {
-                cacti[i].x -= 4.5;
-                if (40 + 20 > cacti[i].x && 40 < cacti[i].x + 14 && dinoY + 30 > cacti[i].y) dinoGameOver = true;
-                if (cacti[i].x + 14 < 0) cacti.splice(i, 1);
-            }
-            dCtx.clearRect(0, 0, dCanvas.width, dCanvas.height);
-            dCtx.strokeStyle = "#555"; dCtx.beginPath(); dCtx.moveTo(0, 150); dCtx.lineTo(dCanvas.width, 150); dCtx.stroke();
-            dCtx.fillStyle = "#15803d"; cacti.forEach(c => dCtx.fillRect(c.x, c.y, c.width, c.height));
-            dCtx.fillStyle = "#4b5563"; dCtx.fillRect(40, dinoY, 20, 30);
-            dinoFrameCount++; dinoAnimationFrameId = requestAnimationFrame(dinoLoop);
-        }
-
-        /* 11. BLOCK BLAST (DRAG AND DROP SUPPORT) 🧩 */
-        let bbGrid = Array(8).fill(null).map(() => Array(8).fill(0));
-        let bbPieces = [], bbScore = 0, draggingPieceIdx = null;
-        const bbPieceShapes = [[[1,1],[1,1]], [[1,1,1]], [[1],[1],[1]], [[1,0],[1,1]], [[1,1,1],[0,1,0]], [[1]]];
-
-        function resetBlockBlast() {
-            bbGrid = Array(8).fill(null).map(() => Array(8).fill(0));
-            bbScore = 0; document.getElementById('bb-score').innerText = `Score: ${bbScore}`;
-            renderBBBoard(); generateBBPieces();
-        }
-
-        function renderBBBoard() {
-            const boardEl = document.getElementById('bb-board'); boardEl.innerHTML = '';
-            for (let r = 0; r < 8; r++) {
-                for (let c = 0; c < 8; c++) {
-                    const cell = document.createElement('div');
-                    cell.className = 'bb-cell' + (bbGrid[r][c] ? ' filled' : '');
-                    cell.dataset.r = r; cell.dataset.c = c;
-                    boardEl.appendChild(cell);
-                }
-            }
-        }
-
-        function generateBBPieces() {
-            bbPieces = [0, 1, 2].map(() => bbPieceShapes[Math.floor(Math.random() * bbPieceShapes.length)]);
-            renderBBPieces();
-        }
-
-        function renderBBPieces() {
-            const container = document.getElementById('bb-pieces'); container.innerHTML = '';
-            bbPieces.forEach((shape, idx) => {
-                if (!shape) return;
-                const card = document.createElement('div');
-                card.className = 'bb-piece-card';
-                card.dataset.idx = idx;
-                
-                const gridEl = document.createElement('div');
-                gridEl.style.display = 'grid'; gridEl.style.gridTemplateColumns = `repeat(${shape[0].length}, 12px)`; gridEl.style.gap = '2px';
-                for (let r = 0; r < shape.length; r++) {
-                    for (let c = 0; c < shape[0].length; c++) {
-                        const sq = document.createElement('div');
-                        sq.style.width = '12px'; sq.style.height = '12px';
-                        sq.style.backgroundColor = shape[r][c] ? '#3b82f6' : 'transparent';
-                        gridEl.appendChild(sq);
-                    }
-                }
-                card.appendChild(gridEl);
-                card.addEventListener('touchstart', (e) => startDragBB(e, idx), { passive: false });
-                card.addEventListener('mousedown', (e) => startDragBB(e, idx));
-                container.appendChild(card);
-            });
-        }
-
-        function startDragBB(e, idx) {
-            e.preventDefault(); draggingPieceIdx = idx;
-            const proxy = document.getElementById('bb-drag-proxy');
-            proxy.innerHTML = ''; proxy.style.display = 'block';
-            
-            const shape = bbPieces[idx];
-            const gridEl = document.createElement('div');
-            gridEl.style.display = 'grid'; gridEl.style.gridTemplateColumns = `repeat(${shape[0].length}, 28px)`; gridEl.style.gap = '2px';
-            for (let r = 0; r < shape.length; r++) {
-                for (let c = 0; c < shape[0].length; c++) {
-                    const sq = document.createElement('div'); sq.style.width = '28px'; sq.style.height = '28px';
-                    sq.style.backgroundColor = shape[r][c] ? '#3b82f6' : 'transparent'; sq.style.borderRadius = '4px';
-                    gridEl.appendChild(sq);
-                }
-            }
-            proxy.appendChild(gridEl); moveDragProxy(e);
-
-            window.addEventListener('touchmove', dragBBMove, { passive: false });
-            window.addEventListener('mousemove', dragBBMove);
-            window.addEventListener('touchend', dragBBEnd);
-            window.addEventListener('mouseup', dragBBEnd);
-        }
-
-        function moveDragProxy(e) {
-            const touch = e.touches ? e.touches[0] : e;
-            const proxy = document.getElementById('bb-drag-proxy');
-            proxy.style.left = touch.clientX + 'px'; proxy.style.top = (touch.clientY - 40) + 'px';
-        }
-
-        function dragBBMove(e) {
-            if (draggingPieceIdx === null) return; moveDragProxy(e);
-            const touch = e.touches ? e.touches[0] : e;
-            const board = document.getElementById('bb-board').getBoundingClientRect();
-            document.querySelectorAll('.bb-cell.hover').forEach(el => el.classList.remove('hover'));
-
-            if (touch.clientX >= board.left && touch.clientX <= board.right && touch.clientY >= board.top && touch.clientY <= board.bottom) {
-                let c = Math.floor((touch.clientX - board.left) / 36);
-                let r = Math.floor((touch.clientY - board.top) / 36);
-                const shape = bbPieces[draggingPieceIdx];
-                if (canPlaceBBPiece(r, c, shape)) {
-                    for (let pr = 0; pr < shape.length; pr++) {
-                        for (let pc = 0; pc < shape[0].length; pc++) {
-                            if (shape[pr][pc]) {
-                                let targetCell = document.querySelector(`.bb-cell[data-r="${r+pr}"][data-c="${c+pc}"]`);
-                                if (targetCell) targetCell.classList.add('hover');
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        function dragBBEnd(e) {
-            if (draggingPieceIdx === null) return;
-            const proxy = document.getElementById('bb-drag-proxy');
-            proxy.style.display = 'none';
-            const touch = e.changedTouches ? e.changedTouches[0] : e;
-            const board = document.getElementById('bb-board').getBoundingClientRect();
-
-            if (touch.clientX >= board.left && touch.clientX <= board.right && touch.clientY >= board.top && touch.clientY <= board.bottom) {
-                let c = Math.floor((touch.clientX - board.left) / 36);
-                let r = Math.floor((touch.clientY - board.top) / 36);
-                const shape = bbPieces[draggingPieceIdx];
-                if (canPlaceBBPiece(r, c, shape)) {
-                    for (let pr = 0; pr < shape.length; pr++) {
-                        for (let pc = 0; pc < shape[0].length; pc++) {
-                            if (shape[pr][pc]) bbGrid[r + pr][c + pc] = 1;
-                        }
-                    }
-                    bbScore += 10; bbPieces[draggingPieceIdx] = null;
-                    clearBBLines(); renderBBBoard(); renderBBPieces();
-                    if (bbPieces.every(p => p === null)) generateBBPieces();
-                }
-            }
-
-            document.querySelectorAll('.bb-cell.hover').forEach(el => el.classList.remove('hover'));
-            draggingPieceIdx = null;
-            window.removeEventListener('touchmove', dragBBMove); window.removeEventListener('mousemove', dragBBMove);
-            window.removeEventListener('touchend', dragBBEnd); window.removeEventListener('mouseup', dragBBEnd);
-        }
-
-        function canPlaceBBPiece(r, c, shape) {
-            for (let pr = 0; pr < shape.length; pr++) {
-                for (let pc = 0; pc < shape[0].length; pc++) {
-                    if (shape[pr][pc]) {
-                        let gr = r + pr, gc = c + pc;
-                        if (gr < 0 || gr >= 8 || gc < 0 || gc >= 8 || bbGrid[gr][gc]) return false;
-                    }
-                }
-            }
-            return true;
-        }
-
-        function clearBBLines() {
-            let rowsToClear = [], colsToClear = [];
-            for (let i = 0; i < 8; i++) {
-                if (bbGrid[i].every(val => val === 1)) rowsToClear.push(i);
-                if (bbGrid.map(row => row[i]).every(val => val === 1)) colsToClear.push(i);
-            }
-            rowsToClear.forEach(rIdx => bbGrid[rIdx].fill(0));
-            colsToClear.forEach(cIdx => { for (let r = 0; r < 8; r++) bbGrid[r][cIdx] = 0; });
-            bbScore += (rowsToClear.length + colsToClear.length) * 80;
-            document.getElementById('bb-score').innerText = `Score: ${bbScore}`;
-        }
-
-        /* 12. ARENA SHOOTER 🔫 */
-        const aCanvas = document.getElementById("arena-canvas"), aCtx = aCanvas.getContext("2d");
-        let arenaPlayer = { x: 170, y: 125, radius: 10, hp: 100 }, arenaEnemies = [], arenaBullets = [], arenaKills = 0, arenaGameOver = false, arenaAnimationFrameId;
-        let arenaMoveVector = { x: 0, y: 0 }, currentWeaponIdx = 0, isFiringArena = false;
-
-        const weapons = [
-            { name: "Pistol", speed: 7, spread: 0.05, count: 1, fireRate: 220, damage: 35 },
-            { name: "Shotgun", speed: 6, spread: 0.35, count: 5, fireRate: 650, damage: 22 },
-            { name: "Rifle", speed: 9, spread: 0.1, count: 1, fireRate: 100, damage: 18 }
-        ];
-        let lastShotTime = 0;
-
-        function setArenaWeapon(idx) {
-            currentWeaponIdx = idx;
-            document.querySelectorAll('.weapon-btn').forEach((btn, i) => btn.classList.toggle('active', i === idx));
-        }
-
-        function resetArenaOps() {
-            cancelAnimationFrame(arenaAnimationFrameId);
-            arenaPlayer = { x: 170, y: 125, radius: 10, hp: 100 };
-            arenaEnemies = []; arenaBullets = []; arenaKills = 0; arenaGameOver = false;
-            document.getElementById('arena-score').innerText = `Kills: ${arenaKills} | HP: ${arenaPlayer.hp}%`;
-            arenaLoop();
-        }
-
-        initJoystick('joy-arena', (nx, ny) => {
-            arenaMoveVector.x = nx; arenaMoveVector.y = ny;
-        }, () => {
-            arenaMoveVector.x = 0; arenaMoveVector.y = 0;
-        });
-
-        const shootBtn = document.getElementById('arena-shoot-btn');
-        shootBtn.addEventListener('touchstart', (e) => { e.preventDefault(); if(arenaGameOver) resetArenaOps(); isFiringArena = true; });
-        shootBtn.addEventListener('touchend', () => { isFiringArena = false; });
-        shootBtn.addEventListener('mousedown', () => { if(arenaGameOver) resetArenaOps(); isFiringArena = true; });
-        window.addEventListener('mouseup', () => { isFiringArena = false; });
-
-        function arenaLoop() {
-            if (activeGameId !== 'game-arena') return;
-
-            if (arenaGameOver) {
-                aCtx.fillStyle = "rgba(0,0,0,0.8)"; aCtx.fillRect(0, 0, aCanvas.width, aCanvas.height);
-                aCtx.fillStyle = "#ef4444"; aCtx.textAlign = "center"; aCtx.font = "bold 20px Arial";
-                aCtx.fillText("MISSION FAILED!", aCanvas.width / 2, aCanvas.height / 2 - 10);
-                aCtx.fillStyle = "#fff"; aCtx.font = "14px Arial";
-                aCtx.fillText(`Total CPU Eliminations: ${arenaKills}`, aCanvas.width / 2, aCanvas.height / 2 + 20);
-                return;
-            }
-
-            if (isFiringArena) autoFireArena();
-            updateArena(); drawArena();
-            arenaAnimationFrameId = requestAnimationFrame(arenaLoop);
-        }
-
-        function updateArena() {
-            // Joystick Player Movement
-            arenaPlayer.x += arenaMoveVector.x * 3;
-            arenaPlayer.y += arenaMoveVector.y * 3;
-            arenaPlayer.x = Math.max(arenaPlayer.radius, Math.min(aCanvas.width - arenaPlayer.radius, arenaPlayer.x));
-            arenaPlayer.y = Math.max(arenaPlayer.radius, Math.min(aCanvas.height - arenaPlayer.radius, arenaPlayer.y));
-
-            // Spawn CPU Enemies
-            if (arenaEnemies.length < 4 + Math.floor(arenaKills / 4) && Math.random() < 0.03) {
-                let side = Math.floor(Math.random() * 4);
-                let ex = side % 2 === 0 ? (side === 0 ? 0 : aCanvas.width) : Math.random() * aCanvas.width;
-                let ey = side % 2 !== 0 ? (side === 1 ? 0 : aCanvas.height) : Math.random() * aCanvas.height;
-                arenaEnemies.push({ x: ex, y: ey, radius: 9, hp: 50, speed: 1.1 + Math.random() * 0.7 });
-            }
-
-            // Move Bullets
-            for (let b = arenaBullets.length - 1; b >= 0; b--) {
-                let bullet = arenaBullets[b];
-                bullet.x += bullet.vx; bullet.y += bullet.vy;
-                if (bullet.x < 0 || bullet.x > aCanvas.width || bullet.y < 0 || bullet.y > aCanvas.height) arenaBullets.splice(b, 1);
-            }
-
-            // Move Enemies & Collisions
-            for (let e = arenaEnemies.length - 1; e >= 0; e--) {
-                let enemy = arenaEnemies[e];
-                let angle = Math.atan2(arenaPlayer.y - enemy.y, arenaPlayer.x - enemy.x);
-                enemy.x += Math.cos(angle) * enemy.speed; enemy.y += Math.sin(angle) * enemy.speed;
-
-                let distToPlayer = Math.hypot(arenaPlayer.x - enemy.x, arenaPlayer.y - enemy.y);
-                if (distToPlayer < arenaPlayer.radius + enemy.radius) {
-                    arenaPlayer.hp -= 1;
-                    document.getElementById('arena-score').innerText = `Kills: ${arenaKills} | HP: ${Math.max(0, arenaPlayer.hp)}%`;
-                    if (arenaPlayer.hp <= 0) arenaGameOver = true;
-                }
-
-                for (let b = arenaBullets.length - 1; b >= 0; b--) {
-                    let bullet = arenaBullets[b];
-                    let distToBullet = Math.hypot(bullet.x - enemy.x, bullet.y - enemy.y);
-                    if (distToBullet < enemy.radius) {
-                        enemy.hp -= bullet.damage; arenaBullets.splice(b, 1);
-                        if (enemy.hp <= 0) {
-                            arenaEnemies.splice(e, 1); arenaKills++;
-                            document.getElementById('arena-score').innerText = `Kills: ${arenaKills} | HP: ${arenaPlayer.hp}%`;
-                        }
-                        break;
-                    }
-                }
-            }
-        }
-
-        function drawArena() {
-            aCtx.clearRect(0, 0, aCanvas.width, aCanvas.height);
-            aCtx.fillStyle = "#f59e0b"; arenaBullets.forEach(b => { aCtx.beginPath(); aCtx.arc(b.x, b.y, 3, 0, Math.PI * 2); aCtx.fill(); });
-            aCtx.fillStyle = "#ef4444"; arenaEnemies.forEach(e => { aCtx.beginPath(); aCtx.arc(e.x, e.y, e.radius, 0, Math.PI * 2); aCtx.fill(); });
-
-            // Auto-aim at nearest enemy or default forward
-            let targetAngle = -Math.PI / 2;
-            if (arenaEnemies.length > 0) {
-                let nearest = arenaEnemies.reduce((prev, curr) => Math.hypot(arenaPlayer.x - curr.x, arenaPlayer.y - curr.y) < Math.hypot(arenaPlayer.x - prev.x, arenaPlayer.y - prev.y) ? curr : prev);
-                targetAngle = Math.atan2(nearest.y - arenaPlayer.y, nearest.x - arenaPlayer.x);
-            }
-
-            aCtx.save();
-            aCtx.translate(arenaPlayer.x, arenaPlayer.y);
-            aCtx.rotate(targetAngle);
-            aCtx.fillStyle = "#94a3b8"; aCtx.fillRect(0, -2, 16, 4);
-            aCtx.fillStyle = "#3b82f6"; aCtx.beginPath(); aCtx.arc(0, 0, arenaPlayer.radius, 0, Math.PI * 2); aCtx.fill();
-            aCtx.restore();
-        }
-
-        function autoFireArena() {
-            const now = Date.now(); const w = weapons[currentWeaponIdx];
-            if (now - lastShotTime < w.fireRate) return;
-            lastShotTime = now;
-
-            let baseAngle = -Math.PI / 2;
-            if (arenaEnemies.length > 0) {
-                let nearest = arenaEnemies.reduce((prev, curr) => Math.hypot(arenaPlayer.x - curr.x, arenaPlayer.y - curr.y) < Math.hypot(arenaPlayer.x - prev.x, arenaPlayer.y - prev.y) ? curr : prev);
-                baseAngle = Math.atan2(nearest.y - arenaPlayer.y, nearest.x - arenaPlayer.x);
-            }
-
-            for (let i = 0; i < w.count; i++) {
-                let spreadAngle = baseAngle + (Math.random() - 0.5) * w.spread;
-                arenaBullets.push({
-                    x: arenaPlayer.x, y: arenaPlayer.y,
-                    vx: Math.cos(spreadAngle) * w.speed, vy: Math.sin(spreadAngle) * w.speed,
-                    damage: w.damage
-                });
-            }
-        }
-
-        switchGame('game-clicker');
-    </script>
+    // Start on load
+    initGame();
+  </script>
 </body>
 </html>
