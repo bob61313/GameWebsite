@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>The Ultimate Arcade Portal</title>
     <style>
         :root {
@@ -19,21 +19,24 @@
             background-color: var(--bg-color);
             color: var(--text);
             margin: 0;
-            padding: 20px;
+            padding: 10px;
             display: flex;
             flex-direction: column;
             align-items: center;
             min-height: 100vh;
+            touch-action: manipulation;
+            user-select: none;
+            -webkit-user-select: none;
         }
 
         header {
             text-align: center;
-            margin-bottom: 20px;
+            margin-bottom: 10px;
         }
 
         h1 {
-            font-size: 2.5rem;
-            margin-bottom: 5px;
+            font-size: 2rem;
+            margin: 5px 0;
             background: linear-gradient(to right, #60a5fa, #a78bfa, #f43f5e);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
@@ -44,18 +47,18 @@
             flex-direction: column;
             align-items: center;
             width: 100%;
-            max-width: 750px;
-            margin-bottom: 25px;
+            max-width: 500px;
+            margin-bottom: 15px;
         }
 
         .random-banner {
-            margin-bottom: 20px;
+            margin-bottom: 10px;
         }
 
         .game-selector {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-            gap: 10px;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 6px;
             width: 100%;
         }
 
@@ -63,34 +66,26 @@
             background-color: var(--card-bg);
             color: var(--text);
             border: 1px solid #334155;
-            padding: 10px 6px;
-            font-size: 0.8rem;
+            padding: 8px 4px;
+            font-size: 0.75rem;
             font-weight: bold;
-            border-radius: 12px;
+            border-radius: 8px;
             cursor: pointer;
             transition: all 0.2s ease;
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 4px;
-        }
-
-        .selector-btn:hover {
-            border-color: var(--accent);
-            transform: translateY(-3px);
-            background-color: #1e293b;
-            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+            gap: 2px;
         }
 
         .selector-btn.active-tab {
             background-color: var(--accent);
             border-color: var(--accent);
             color: white;
-            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
         }
 
         .selector-btn span.emoji {
-            font-size: 1.4rem;
+            font-size: 1.2rem;
         }
 
         .game-card {
@@ -98,17 +93,18 @@
             border-radius: 16px;
             box-shadow: 0 10px 25px rgba(0,0,0,0.3);
             width: 100%;
-            max-width: 520px;
-            padding: 25px;
+            max-width: 480px;
+            padding: 15px;
             text-align: center;
             box-sizing: border-box;
             border: 1px solid #334155;
             display: none;
+            position: relative;
         }
 
         .game-card.active {
             display: block;
-            animation: fadeIn 0.4s ease;
+            animation: fadeIn 0.3s ease;
         }
 
         @keyframes fadeIn {
@@ -116,163 +112,141 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        h2 {
-            margin-top: 0;
-            color: #60a5fa;
-            margin-bottom: 10px;
-        }
+        h2 { margin-top: 0; color: #60a5fa; margin-bottom: 5px; font-size: 1.4rem; }
 
         .game-content {
-            margin: 15px 0;
+            margin: 10px 0;
             min-height: 150px;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
+            position: relative;
         }
 
         .score-display {
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             font-weight: bold;
-            margin-bottom: 12px;
+            margin-bottom: 8px;
         }
 
         .btn {
             background-color: var(--accent);
             color: white;
             border: none;
-            padding: 10px 20px;
-            font-size: 1rem;
+            padding: 8px 16px;
+            font-size: 0.9rem;
             font-weight: bold;
             border-radius: 8px;
             cursor: pointer;
-            transition: all 0.2s ease;
-            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
-        }
-
-        .btn:hover {
-            background-color: var(--accent-hover);
-            transform: translateY(-2px);
         }
 
         /* CLICKER */
         .click-target {
-            width: 90px;
-            height: 90px;
-            background-color: #ef4444;
-            border-radius: 50%;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            box-shadow: 0 6px 0 #b91c1c;
-            user-select: none;
+            width: 90px; height: 90px; background-color: #ef4444; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center; font-weight: bold;
+            box-shadow: 0 6px 0 #b91c1c; user-select: none; color: white;
         }
 
         /* COLOR MATCHER */
         .color-options { display: flex; gap: 10px; }
-        .color-btn { border: none; padding: 10px 20px; border-radius: 6px; font-weight: bold; cursor: pointer; color: white; }
+        .color-btn { border: none; padding: 10px 20px; border-radius: 6px; font-weight: bold; color: white; }
 
         /* GUESS THE NUMBER */
         input[type="number"] {
-            background-color: #0f172a;
-            border: 2px solid #334155;
-            color: white;
-            padding: 10px;
-            border-radius: 6px;
-            font-size: 1.2rem;
-            width: 80px;
-            text-align: center;
-            margin-bottom: 15px;
+            background-color: #0f172a; border: 2px solid #334155; color: white;
+            padding: 8px; border-radius: 6px; font-size: 1.2rem; width: 80px; text-align: center; margin-bottom: 10px;
         }
 
         /* TIC-TAC-TOE */
-        .ttt-grid { display: grid; grid-template-columns: repeat(3, 75px); grid-gap: 8px; margin-bottom: 15px; }
+        .ttt-grid { display: grid; grid-template-columns: repeat(3, 70px); grid-gap: 6px; }
         .ttt-cell {
-            width: 75px; height: 75px; background-color: #0f172a; border: 2px solid #334155;
-            border-radius: 8px; font-size: 2rem; font-weight: bold; display: flex;
-            align-items: center; justify-content: center; cursor: pointer; user-select: none; color: #f8fafc;
+            width: 70px; height: 70px; background-color: #0f172a; border: 2px solid #334155;
+            border-radius: 8px; font-size: 1.8rem; font-weight: bold; display: flex;
+            align-items: center; justify-content: center; color: #f8fafc;
         }
 
         /* ROCK PAPER SCISSORS */
-        .rps-choices { display: flex; gap: 15px; margin-bottom: 15px; }
-        .rps-btn { font-size: 2rem; background-color: #334155; border: none; padding: 12px; border-radius: 50%; cursor: pointer; }
+        .rps-choices { display: flex; gap: 15px; margin-bottom: 10px; }
+        .rps-btn { font-size: 2rem; background-color: #334155; border: none; padding: 10px; border-radius: 50%; }
 
-        /* SNAKE, FLAPPY, SPACE, RACER, DINO CANVAS BASE */
-        canvas { border: 2px solid #334155; border-radius: 8px; }
+        /* CANVAS BASE */
+        canvas { border: 2px solid #334155; border-radius: 8px; max-width: 100%; height: auto; touch-action: none; }
 
         /* BLOCK BLAST */
         #bb-board {
             display: grid;
-            grid-template-columns: repeat(8, 32px);
-            grid-template-rows: repeat(8, 32px);
-            gap: 3px;
+            grid-template-columns: repeat(8, 34px);
+            grid-template-rows: repeat(8, 34px);
+            gap: 2px;
             background-color: #0f172a;
-            padding: 6px;
+            padding: 4px;
             border-radius: 8px;
             border: 2px solid #334155;
+            touch-action: none;
         }
         .bb-cell {
-            width: 32px;
-            height: 32px;
-            background-color: #1e293b;
-            border-radius: 4px;
+            width: 34px; height: 34px;
+            background-color: #1e293b; border-radius: 4px;
         }
         .bb-cell.filled { background-color: #3b82f6; box-shadow: inset 0 0 6px rgba(255,255,255,0.4); }
+        .bb-cell.hover { background-color: #f59e0b; opacity: 0.6; }
+
         .bb-pieces-container {
-            display: flex;
-            justify-content: space-around;
-            width: 100%;
-            margin-top: 15px;
+            display: flex; justify-content: space-around; width: 100%; margin-top: 15px; min-height: 70px;
         }
         .bb-piece-card {
-            padding: 6px;
-            background-color: #0f172a;
-            border: 2px solid #334155;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: transform 0.1s;
+            padding: 6px; background-color: #0f172a; border: 2px solid #334155;
+            border-radius: 8px; cursor: grab; touch-action: none;
         }
-        .bb-piece-card:hover { transform: scale(1.08); border-color: #3b82f6; }
-        .bb-piece-card.selected { border-color: #f59e0b; background-color: #1e1b4b; }
 
-        /* TOP DOWN ARENA SHOOTER */
-        #arena-canvas {
-            background-color: #111827;
-            cursor: crosshair;
+        #bb-drag-proxy {
+            position: fixed; pointer-events: none; z-index: 1000; display: none; opacity: 0.85; transform: translate(-50%, -50%);
         }
-        .weapon-bar {
-            display: flex;
-            gap: 8px;
-            margin-top: 10px;
+
+        /* MOBILE JOYSTICK & SHOOT CONTROLS */
+        .mobile-controls-layer {
+            display: flex; justify-content: space-between; align-items: center;
+            width: 100%; margin-top: 10px; padding: 0 10px; box-sizing: border-box;
         }
-        .weapon-btn {
-            background-color: #334155;
-            color: white;
-            border: 1px solid #475569;
-            padding: 6px 12px;
-            border-radius: 6px;
-            font-size: 0.8rem;
-            cursor: pointer;
+
+        .joystick-container {
+            width: 90px; height: 90px; background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.2); border-radius: 50%;
+            position: relative; touch-action: none; display: flex; align-items: center; justify-content: center;
         }
-        .weapon-btn.active {
-            background-color: #ef4444;
-            border-color: #f87171;
-            font-weight: bold;
+
+        .joystick-thumb {
+            width: 38px; height: 38px; background: #3b82f6; border-radius: 50%;
+            position: absolute; transform: translate(0, 0); box-shadow: 0 2px 8px rgba(0,0,0,0.5);
         }
+
+        .action-btn-container {
+            display: flex; gap: 8px;
+        }
+
+        .action-btn {
+            width: 55px; height: 55px; background: #ef4444; border-radius: 50%; border: 2px solid #f87171;
+            color: white; font-weight: bold; font-size: 1.2rem; display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3); touch-action: manipulation;
+        }
+        .action-btn:active { transform: scale(0.92); background-color: #dc2626; }
+
+        .weapon-bar { display: flex; gap: 6px; margin-top: 6px; }
+        .weapon-btn { background-color: #334155; color: white; border: 1px solid #475569; padding: 4px 8px; border-radius: 6px; font-size: 0.75rem; }
+        .weapon-btn.active { background-color: #ef4444; border-color: #f87171; font-weight: bold; }
     </style>
 </head>
 <body>
 
     <header>
-        <h1>⚡ The Ultimate Arcade ⚡</h1>
-        <p style="color: var(--text-muted)">Pick a game from the menu or roll the dice!</p>
+        <h1>⚡ Mobile Arcade Portal ⚡</h1>
+        <p style="color: var(--text-muted); font-size: 0.85rem; margin: 0;">Stream & Play Anywhere!</p>
     </header>
 
     <div class="menu-container">
         <div class="random-banner">
-            <button class="btn" onclick="selectRandomGame()">🎲 Surprise Me! (Random Game)</button>
+            <button class="btn" onclick="selectRandomGame()">🎲 Surprise Game!</button>
         </div>
         
         <div class="game-selector">
@@ -294,7 +268,6 @@
     <!-- GAME 1: CLICKER -->
     <div id="game-clicker" class="game-card">
         <h2>Clicker Mayhem</h2>
-        <p style="color: var(--text-muted)">Click fast! 10 second limit.</p>
         <div class="game-content">
             <div id="clicker-timer" class="score-display">Time: 10s</div>
             <div id="clicker-score" class="score-display">Clicks: 0</div>
@@ -306,11 +279,10 @@
     <!-- GAME 2: COLOR MATCHER -->
     <div id="game-color" class="game-card">
         <h2>Color Matcher</h2>
-        <p style="color: var(--text-muted)">Match word name, not its color!</p>
         <div class="game-content">
             <div id="color-timer" class="score-display" style="color: #60a5fa;">Time: 60s</div>
             <div id="color-score" class="score-display">Score: 0</div>
-            <div id="color-word" style="font-size: 2.5rem; font-weight: bold; margin-bottom: 15px;">RED</div>
+            <div id="color-word" style="font-size: 2.2rem; font-weight: bold; margin-bottom: 12px;">RED</div>
             <div class="color-options">
                 <button class="color-btn" style="background-color: #ef4444;" onclick="guessColor('red')">Red</button>
                 <button class="color-btn" style="background-color: #3b82f6;" onclick="guessColor('blue')">Blue</button>
@@ -322,11 +294,10 @@
     <!-- GAME 3: GUESS THE NUMBER -->
     <div id="game-guess" class="game-card">
         <h2>Mystery Number</h2>
-        <p style="color: var(--text-muted)">Guess secret number between 1 and 50!</p>
         <div class="game-content">
             <input type="number" id="guess-input" min="1" max="50" placeholder="?">
             <button class="btn" onclick="checkGuess()">Submit Guess</button>
-            <p id="guess-feedback" style="margin-top: 15px; font-weight: bold; color: #10b981;"></p>
+            <p id="guess-feedback" style="margin-top: 10px; font-weight: bold; color: #10b981;"></p>
         </div>
         <button class="btn" style="background-color: #475569;" onclick="startGuessingGame()">Reset Code</button>
     </div>
@@ -334,7 +305,6 @@
     <!-- GAME 4: TIC-TAC-TOE -->
     <div id="game-ttt" class="game-card">
         <h2>Tic-Tac-Toe</h2>
-        <p style="color: var(--text-muted)">Beat the CPU Minimax AI!</p>
         <div class="game-content">
             <div id="ttt-status" class="score-display">Your Turn</div>
             <div class="ttt-grid" id="ttt-grid">
@@ -349,7 +319,6 @@
     <!-- GAME 5: ROCK PAPER SCISSORS -->
     <div id="game-rps" class="game-card">
         <h2>Rock, Paper, Scissors</h2>
-        <p style="color: var(--text-muted)">First to 5 points wins!</p>
         <div class="game-content">
             <div id="rps-score" class="score-display">Player: 0 | CPU: 0</div>
             <div class="rps-choices">
@@ -357,7 +326,7 @@
                 <button class="rps-btn" onclick="playRPS('✋')">✋</button>
                 <button class="rps-btn" onclick="playRPS('✌️')">✌️</button>
             </div>
-            <div id="rps-result" style="font-size: 1rem; min-height: 40px;">Make your move!</div>
+            <div id="rps-result" style="font-size: 0.9rem; min-height: 30px;">First to 5 wins!</div>
         </div>
         <button class="btn" style="background-color: #475569;" onclick="startRPS()">Reset Score</button>
     </div>
@@ -365,10 +334,12 @@
     <!-- GAME 6: SNAKE -->
     <div id="game-snake" class="game-card">
         <h2>Retro Snake</h2>
-        <p style="color: var(--text-muted)">WASD / Arrows to steer!</p>
         <div class="game-content">
             <div id="snake-score" class="score-display">Score: 0</div>
             <canvas id="snake-canvas" width="240" height="240"></canvas>
+            <div class="mobile-controls-layer">
+                <div class="joystick-container" id="joy-snake"><div class="joystick-thumb"></div></div>
+            </div>
         </div>
         <button class="btn" style="background-color: #475569;" onclick="startSnake()">Reset Game</button>
     </div>
@@ -376,9 +347,11 @@
     <!-- GAME 7: FLAPPY BIRD -->
     <div id="game-flappy" class="game-card">
         <h2>Flappy Bird</h2>
-        <p style="color: var(--text-muted)">Spacebar or Click to Flap!</p>
         <div class="game-content">
-            <canvas id="flappy-canvas" width="320" height="360"></canvas>
+            <canvas id="flappy-canvas" width="300" height="320"></canvas>
+            <div class="mobile-controls-layer" style="justify-content: center; margin-top: 8px;">
+                <button class="action-btn" style="width: 120px; border-radius: 12px;" onclick="handleFlappyAction()">FLAP 🐦</button>
+            </div>
         </div>
         <button class="btn" style="background-color: #475569;" onclick="resetFlappy()">Reset Game</button>
     </div>
@@ -386,10 +359,15 @@
     <!-- GAME 8: SPACE INVADER -->
     <div id="game-space" class="game-card">
         <h2>Space Invader</h2>
-        <p style="color: var(--text-muted)">A/D or Arrows to Move. SPACE to Shoot!</p>
         <div class="game-content">
             <div id="space-score" class="score-display">Score: 0</div>
-            <canvas id="space-canvas" width="320" height="320"></canvas>
+            <canvas id="space-canvas" width="300" height="280"></canvas>
+            <div class="mobile-controls-layer">
+                <div class="joystick-container" id="joy-space"><div class="joystick-thumb"></div></div>
+                <div class="action-btn-container">
+                    <button class="action-btn" onclick="shootLaser()">🔥</button>
+                </div>
+            </div>
         </div>
         <button class="btn" style="background-color: #475569;" onclick="resetSpaceGame()">Reset Game</button>
     </div>
@@ -397,10 +375,13 @@
     <!-- GAME 9: MICRO RACER -->
     <div id="game-racer" class="game-card">
         <h2>Micro Racer</h2>
-        <p style="color: var(--text-muted)">A/D or Arrows to switch lanes!</p>
         <div class="game-content">
             <div id="racer-score" class="score-display">Score: 0</div>
-            <canvas id="racer-canvas" width="240" height="320"></canvas>
+            <canvas id="racer-canvas" width="240" height="280"></canvas>
+            <div class="mobile-controls-layer" style="justify-content: space-around;">
+                <button class="action-btn" onclick="moveCarLeft()">◀</button>
+                <button class="action-btn" onclick="moveCarRight()">▶</button>
+            </div>
         </div>
         <button class="btn" style="background-color: #475569;" onclick="resetRacerGame()">Reset Game</button>
     </div>
@@ -408,10 +389,12 @@
     <!-- GAME 10: DINO RUNNER -->
     <div id="game-dino" class="game-card">
         <h2>Dino Runner</h2>
-        <p style="color: var(--text-muted)">SPACE or UP Arrow to jump over cacti!</p>
         <div class="game-content">
             <div id="dino-score" class="score-display" style="color: #475569;">Score: 0</div>
-            <canvas id="dino-canvas" width="360" height="200" style="background-color: #f7f7f7;"></canvas>
+            <canvas id="dino-canvas" width="320" height="180" style="background-color: #f7f7f7;"></canvas>
+            <div class="mobile-controls-layer" style="justify-content: center; margin-top: 8px;">
+                <button class="action-btn" style="width: 120px; border-radius: 12px;" onclick="triggerDinoJump()">JUMP 🦖</button>
+            </div>
         </div>
         <button class="btn" style="background-color: #475569;" onclick="resetDinoGame()">Reset Game</button>
     </div>
@@ -419,7 +402,7 @@
     <!-- GAME 11: BLOCK BLAST -->
     <div id="game-block" class="game-card">
         <h2>Block Blast 🧩</h2>
-        <p style="color: var(--text-muted)">Select a piece below, then click on the grid to place it!</p>
+        <p style="color: var(--text-muted); font-size: 0.8rem; margin: 2px 0;">Drag and drop shapes onto the board!</p>
         <div class="game-content">
             <div id="bb-score" class="score-display">Score: 0</div>
             <div id="bb-board"></div>
@@ -431,32 +414,40 @@
     <!-- GAME 12: ARENA SHOOTER -->
     <div id="game-arena" class="game-card">
         <h2>Arena Shooter 🔫</h2>
-        <p style="color: var(--text-muted)">WASD/Arrows = Move | Mouse = Aim & Shoot | Q/1,2,3 = Weapon</p>
         <div class="game-content">
-            <div id="arena-score" class="score-display">Kills: 0 | Health: 100%</div>
-            <canvas id="arena-canvas" width="380" height="280"></canvas>
+            <div id="arena-score" class="score-display">Kills: 0 | HP: 100%</div>
+            <canvas id="arena-canvas" width="340" height="250"></canvas>
+            
             <div class="weapon-bar">
-                <button class="weapon-btn active" id="w-btn-0" onclick="setArenaWeapon(0)">1: Pistol 🔫</button>
-                <button class="weapon-btn" id="w-btn-1" onclick="setArenaWeapon(1)">2: Shotgun 💥</button>
-                <button class="weapon-btn" id="w-btn-2" onclick="setArenaWeapon(2)">3: Rifle ⚡</button>
+                <button class="weapon-btn active" id="w-btn-0" onclick="setArenaWeapon(0)">Pistol 🔫</button>
+                <button class="weapon-btn" id="w-btn-1" onclick="setArenaWeapon(1)">Shotgun 💥</button>
+                <button class="weapon-btn" id="w-btn-2" onclick="setArenaWeapon(2)">Rifle ⚡</button>
+            </div>
+
+            <div class="mobile-controls-layer">
+                <!-- Virtual Joystick Circle -->
+                <div class="joystick-container" id="joy-arena">
+                    <div class="joystick-thumb"></div>
+                </div>
+                <!-- Action Shoot Button -->
+                <div class="action-btn-container">
+                    <button class="action-btn" id="arena-shoot-btn">🔫</button>
+                </div>
             </div>
         </div>
         <button class="btn" style="background-color: #475569;" onclick="resetArenaOps()">Reset Game</button>
     </div>
+
+    <div id="bb-drag-proxy"></div>
 
     <script>
         const games = ['game-clicker', 'game-color', 'game-guess', 'game-ttt', 'game-rps', 'game-snake', 'game-flappy', 'game-space', 'game-racer', 'game-dino', 'game-block', 'game-arena'];
         let activeGameId = '';
 
         function switchGame(targetGameId) {
-            clearInterval(clickerTimer);
-            clearInterval(snakeGameInterval);
-            clearInterval(colorTimerInterval);
-            cancelAnimationFrame(flappyAnimationFrameId);
-            cancelAnimationFrame(spaceAnimationFrameId);
-            cancelAnimationFrame(racerAnimationFrameId);
-            cancelAnimationFrame(dinoAnimationFrameId);
-            cancelAnimationFrame(arenaAnimationFrameId);
+            clearInterval(clickerTimer); clearInterval(snakeGameInterval); clearInterval(colorTimerInterval);
+            cancelAnimationFrame(flappyAnimationFrameId); cancelAnimationFrame(spaceAnimationFrameId);
+            cancelAnimationFrame(racerAnimationFrameId); cancelAnimationFrame(dinoAnimationFrameId); cancelAnimationFrame(arenaAnimationFrameId);
 
             if (activeGameId) {
                 document.getElementById(activeGameId).classList.remove('active');
@@ -466,7 +457,6 @@
 
             activeGameId = targetGameId;
             document.getElementById(activeGameId).classList.add('active');
-            
             const currentTab = getTabIdForGame(targetGameId);
             if (currentTab) document.getElementById(currentTab).classList.add('active-tab');
 
@@ -484,26 +474,65 @@
             if (targetGameId === 'game-arena') resetArenaOps();
         }
 
-        function getTabIdForGame(gameId) {
-            return 'btn-' + gameId;
-        }
-
+        function getTabIdForGame(gameId) { return 'btn-' + gameId; }
         function selectRandomGame() {
             let availableGames = games.filter(g => g !== activeGameId);
-            const randomGame = availableGames[Math.floor(Math.random() * availableGames.length)];
-            switchGame(randomGame);
+            switchGame(availableGames[Math.floor(Math.random() * availableGames.length)]);
+        }
+
+        /* VIRTUAL JOYSTICK SYSTEM */
+        function initJoystick(containerId, onMoveCallback, onEndCallback) {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+            const thumb = container.querySelector('.joystick-thumb');
+            let activeTouchId = null, center = { x: 0, y: 0 };
+
+            function handleStart(e) {
+                const touch = e.changedTouches ? e.changedTouches[0] : e;
+                activeTouchId = touch.identifier ?? 'mouse';
+                const rect = container.getBoundingClientRect();
+                center = { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
+                handleMove(e);
+            }
+
+            function handleMove(e) {
+                if (activeTouchId === null) return;
+                let touch = null;
+                if (e.changedTouches) {
+                    for (let t of e.changedTouches) { if (t.identifier === activeTouchId) { touch = t; break; } }
+                } else touch = e;
+                if (!touch) return;
+
+                let dx = touch.clientX - center.x, dy = touch.clientY - center.y;
+                let dist = Math.hypot(dx, dy), maxRadius = 30;
+                if (dist > maxRadius) { dx = (dx / dist) * maxRadius; dy = (dy / dist) * maxRadius; }
+                thumb.style.transform = `translate(${dx}px, ${dy}px)`;
+                if (onMoveCallback) onMoveCallback(dx / maxRadius, dy / maxRadius);
+            }
+
+            function handleEnd(e) {
+                if (activeTouchId === null) return;
+                thumb.style.transform = `translate(0px, 0px)`;
+                activeTouchId = null;
+                if (onEndCallback) onEndCallback();
+            }
+
+            container.addEventListener('touchstart', handleStart, { passive: false });
+            window.addEventListener('touchmove', handleMove, { passive: false });
+            window.addEventListener('touchend', handleEnd);
+            container.addEventListener('mousedown', handleStart);
+            window.addEventListener('mousemove', handleMove);
+            window.addEventListener('mouseup', handleEnd);
         }
 
         /* 1. CLICKER MAYHEM */
         let clickCount = 0, timeLeft = 10, clickerTimer, clickerActive = false;
         function startClicker() {
-            clearInterval(clickerTimer);
-            clickCount = 0; timeLeft = 10; clickerActive = true;
+            clearInterval(clickerTimer); clickCount = 0; timeLeft = 10; clickerActive = true;
             document.getElementById('clicker-score').innerText = `Clicks: ${clickCount}`;
             document.getElementById('clicker-timer').innerText = `Time: ${timeLeft}s`;
             clickerTimer = setInterval(() => {
-                timeLeft--;
-                document.getElementById('clicker-timer').innerText = `Time: ${timeLeft}s`;
+                timeLeft--; document.getElementById('clicker-timer').innerText = `Time: ${timeLeft}s`;
                 if (timeLeft <= 0) { clearInterval(clickerTimer); clickerActive = false; alert(`Time's up! You scored ${clickCount} clicks!`); }
             }, 1000);
         }
@@ -513,13 +542,11 @@
         let colorScore = 0, correctColorName = '', colorTimeLeft = 60, colorTimerInterval, colorGameActive = false;
         const colorPalette = { red: '#ef4444', blue: '#3b82f6', green: '#10b981' };
         function startColorGame() {
-            clearInterval(colorTimerInterval);
-            colorScore = 0; colorTimeLeft = 60; colorGameActive = true;
+            clearInterval(colorTimerInterval); colorScore = 0; colorTimeLeft = 60; colorGameActive = true;
             document.getElementById('color-score').innerText = `Score: ${colorScore}`;
             document.getElementById('color-timer').innerText = `Time: ${colorTimeLeft}s`;
             colorTimerInterval = setInterval(() => {
-                colorTimeLeft--;
-                document.getElementById('color-timer').innerText = `Time: ${colorTimeLeft}s`;
+                colorTimeLeft--; document.getElementById('color-timer').innerText = `Time: ${colorTimeLeft}s`;
                 if (colorTimeLeft <= 0) { clearInterval(colorTimerInterval); colorGameActive = false; alert(`Time's up! Score: ${colorScore}!`); }
             }, 1000);
             nextColorRound();
@@ -561,12 +588,10 @@
             makeMove(index, 'X');
             if (checkTTTWin(tttBoard, 'X')) { document.getElementById('ttt-status').innerText = "🎉 You Won!"; tttActive = false; return; }
             if (tttBoard.every(cell => cell !== '')) { document.getElementById('ttt-status').innerText = "Draw Game! 🤝"; tttActive = false; return; }
-            document.getElementById('ttt-status').innerText = "CPU thinking...";
-            setTimeout(cpuTTT, 300);
+            document.getElementById('ttt-status').innerText = "CPU thinking..."; setTimeout(cpuTTT, 300);
         }
         function makeMove(index, marker) {
-            tttBoard[index] = marker;
-            const cell = document.getElementById('ttt-grid').children[index];
+            tttBoard[index] = marker; const cell = document.getElementById('ttt-grid').children[index];
             cell.innerText = marker; cell.style.color = marker === 'X' ? '#60a5fa' : '#f87171';
         }
         function cpuTTT() {
@@ -586,16 +611,13 @@
             }
         }
         function minimax(board, depth, isMaximizing) {
-            if (checkTTTWin(board, 'O')) return 10 - depth;
-            if (checkTTTWin(board, 'X')) return depth - 10;
+            if (checkTTTWin(board, 'O')) return 10 - depth; if (checkTTTWin(board, 'X')) return depth - 10;
             if (board.every(cell => cell !== '')) return 0;
             if (isMaximizing) {
-                let bestScore = -Infinity;
-                for (let i = 0; i < 9; i++) { if (board[i] === '') { board[i] = 'O'; bestScore = Math.max(minimax(board, depth + 1, false), bestScore); board[i] = ''; } }
+                let bestScore = -Infinity; for (let i = 0; i < 9; i++) { if (board[i] === '') { board[i] = 'O'; bestScore = Math.max(minimax(board, depth + 1, false), bestScore); board[i] = ''; } }
                 return bestScore;
             } else {
-                let bestScore = Infinity;
-                for (let i = 0; i < 9; i++) { if (board[i] === '') { board[i] = 'X'; bestScore = Math.min(minimax(board, depth + 1, true), bestScore); board[i] = ''; } }
+                let bestScore = Infinity; for (let i = 0; i < 9; i++) { if (board[i] === '') { board[i] = 'X'; bestScore = Math.min(minimax(board, depth + 1, true), bestScore); board[i] = ''; } }
                 return bestScore;
             }
         }
@@ -642,6 +664,10 @@
             if (dir === 'UP' && dy === 0) { dx = 0; dy = -grid; } if (dir === 'DOWN' && dy === 0) { dx = 0; dy = grid; }
             if (dir === 'LEFT' && dx === 0) { dx = -grid; dy = 0; } if (dir === 'RIGHT' && dx === 0) { dx = grid; dy = 0; }
         }
+        initJoystick('joy-snake', (nx, ny) => {
+            if (Math.abs(nx) > Math.abs(ny)) { changeSnakeDir(nx > 0 ? 'RIGHT' : 'LEFT'); }
+            else { changeSnakeDir(ny > 0 ? 'DOWN' : 'UP'); }
+        });
 
         /* 7. FLAPPY BIRD */
         const fCanvas = document.getElementById("flappy-canvas"), fCtx = fCanvas.getContext("2d");
@@ -652,42 +678,43 @@
         function handleFlappyAction() { if (activeGameId === 'game-flappy') { if (flappyGameOver) resetFlappy(); else flappyVelocity = -4.5; } }
         function flappyLoop() {
             if (activeGameId !== 'game-flappy') return;
-            if (flappyGameOver) { fCtx.fillStyle = "rgba(0,0,0,0.5)"; fCtx.fillRect(0,0,fCanvas.width,fCanvas.height); fCtx.fillStyle="#fff"; fCtx.textAlign="center"; fCtx.font="20px Arial"; fCtx.fillText("Game Over! Score: "+flappyScore, fCanvas.width/2, fCanvas.height/2); return; }
+            if (flappyGameOver) { fCtx.fillStyle = "rgba(0,0,0,0.5)"; fCtx.fillRect(0,0,fCanvas.width,fCanvas.height); fCtx.fillStyle="#fff"; fCtx.textAlign="center"; fCtx.font="18px Arial"; fCtx.fillText("Game Over! Score: "+flappyScore, fCanvas.width/2, fCanvas.height/2); return; }
             flappyVelocity += 0.22; birdy += flappyVelocity;
             if (birdy + 16 > fCanvas.height || birdy < 0) flappyGameOver = true;
             if (flappyFrameCount % 100 === 0) {
-                const top = Math.floor(Math.random() * 150) + 30;
-                flappyPipes.push({ x: fCanvas.width, top: top, bottom: fCanvas.height - top - 110, passed: false });
+                const top = Math.floor(Math.random() * 120) + 30;
+                flappyPipes.push({ x: fCanvas.width, top: top, bottom: fCanvas.height - top - 100, passed: false });
             }
-            flappyPipes.forEach((p, i) => {
+            flappyPipes.forEach((p) => {
                 p.x -= 2;
-                if (birdx + 16 > p.x && birdx < p.x + 45 && (birdy < p.top || birdy + 16 > fCanvas.height - p.bottom)) flappyGameOver = true;
-                if (!p.passed && p.x + 45 < birdx) { flappyScore++; p.passed = true; }
+                if (birdx + 16 > p.x && birdx < p.x + 40 && (birdy < p.top || birdy + 16 > fCanvas.height - p.bottom)) flappyGameOver = true;
+                if (!p.passed && p.x + 40 < birdx) { flappyScore++; p.passed = true; }
             });
-            flappyPipes = flappyPipes.filter(p => p.x + 45 > 0);
+            flappyPipes = flappyPipes.filter(p => p.x + 40 > 0);
             fCtx.fillStyle = "#70c5ce"; fCtx.fillRect(0, 0, fCanvas.width, fCanvas.height);
-            fCtx.fillStyle = "#73bf2e"; flappyPipes.forEach(p => { fCtx.fillRect(p.x, 0, 45, p.top); fCtx.fillRect(p.x, fCanvas.height - p.bottom, 45, p.bottom); });
+            fCtx.fillStyle = "#73bf2e"; flappyPipes.forEach(p => { fCtx.fillRect(p.x, 0, 40, p.top); fCtx.fillRect(p.x, fCanvas.height - p.bottom, 40, p.bottom); });
             fCtx.fillStyle = "#f8e71c"; fCtx.fillRect(birdx, birdy, 16, 16);
-            fCtx.fillStyle = "#fff"; fCtx.font = "bold 20px Arial"; fCtx.fillText(flappyScore, fCanvas.width / 2, 30);
+            fCtx.fillStyle = "#fff"; fCtx.font = "bold 18px Arial"; fCtx.fillText(flappyScore, fCanvas.width / 2, 25);
             flappyFrameCount++; flappyAnimationFrameId = requestAnimationFrame(flappyLoop);
         }
 
         /* 8. SPACE INVADER */
         const sCanvas = document.getElementById("space-canvas"), sCtx = sCanvas.getContext("2d");
-        let spacePlayerX = 145, spaceMoveLeft = false, spaceMoveRight = false, spaceLasers = [], spaceInvaders = [], spaceScore = 0, spaceGameOver = false, spaceAnimationFrameId;
+        let spacePlayerX = 135, spaceMoveDir = 0, spaceLasers = [], spaceInvaders = [], spaceScore = 0, spaceGameOver = false, spaceAnimationFrameId;
         function resetSpaceGame() {
-            cancelAnimationFrame(spaceAnimationFrameId); spacePlayerX = 145; spaceLasers = []; spaceInvaders = []; spaceScore = 0; spaceGameOver = false;
+            cancelAnimationFrame(spaceAnimationFrameId); spacePlayerX = 135; spaceLasers = []; spaceInvaders = []; spaceScore = 0; spaceGameOver = false;
             document.getElementById('space-score').innerText = `Score: ${spaceScore}`;
-            for (let r = 0; r < 3; r++) for (let c = 0; c < 6; c++) spaceInvaders.push({ x: 30 + c * 45, y: 30 + r * 25, width: 25, height: 15 });
+            for (let r = 0; r < 3; r++) for (let c = 0; c < 5; c++) spaceInvaders.push({ x: 25 + c * 50, y: 25 + r * 22, width: 25, height: 15 });
             spaceLoop();
         }
-        function shootLaser() { if (activeGameId === 'game-space' && !spaceGameOver) spaceLasers.push({ x: spacePlayerX + 13, y: 280, width: 4, height: 10 }); }
+        function shootLaser() { if (activeGameId === 'game-space') { if (spaceGameOver) resetSpaceGame(); else spaceLasers.push({ x: spacePlayerX + 13, y: 240, width: 4, height: 10 }); } }
         function spaceLoop() {
             if (activeGameId !== 'game-space') return;
-            if (spaceGameOver) { sCtx.fillStyle = "rgba(0,0,0,0.7)"; sCtx.fillRect(0,0,sCanvas.width,sCanvas.height); sCtx.fillStyle="#fff"; sCtx.textAlign="center"; sCtx.font="20px Arial"; sCtx.fillText("Game Over! Score: "+spaceScore, sCanvas.width/2, sCanvas.height/2); return; }
-            if (spaceMoveLeft && spacePlayerX > 0) spacePlayerX -= 4; if (spaceMoveRight && spacePlayerX < sCanvas.width - 30) spacePlayerX += 4;
+            if (spaceGameOver) { sCtx.fillStyle = "rgba(0,0,0,0.7)"; sCtx.fillRect(0,0,sCanvas.width,sCanvas.height); sCtx.fillStyle="#fff"; sCtx.textAlign="center"; sCtx.font="18px Arial"; sCtx.fillText("Game Over! Score: "+spaceScore, sCanvas.width/2, sCanvas.height/2); return; }
+            spacePlayerX += spaceMoveDir * 4;
+            spacePlayerX = Math.max(0, Math.min(sCanvas.width - 30, spacePlayerX));
             spaceLasers.forEach(l => l.y -= 6); spaceLasers = spaceLasers.filter(l => l.y > 0);
-            spaceInvaders.forEach(inv => { inv.y += 0.15; if (inv.y + 15 >= 280) spaceGameOver = true; });
+            spaceInvaders.forEach(inv => { inv.y += 0.12; if (inv.y + 15 >= 240) spaceGameOver = true; });
             for (let l = spaceLasers.length - 1; l >= 0; l--) {
                 for (let i = spaceInvaders.length - 1; i >= 0; i--) {
                     if (spaceLasers[l] && spaceLasers[l].x < spaceInvaders[i].x + 25 && spaceLasers[l].x + 4 > spaceInvaders[i].x && spaceLasers[l].y < spaceInvaders[i].y + 15) {
@@ -697,12 +724,13 @@
                 }
             }
             sCtx.clearRect(0, 0, sCanvas.width, sCanvas.height);
-            sCtx.fillStyle = "#10b981"; sCtx.fillRect(spacePlayerX, 280, 30, 15);
+            sCtx.fillStyle = "#10b981"; sCtx.fillRect(spacePlayerX, 240, 30, 15);
             sCtx.fillStyle = "#ef4444"; spaceLasers.forEach(l => sCtx.fillRect(l.x, l.y, l.width, l.height));
             sCtx.fillStyle = "#a78bfa"; spaceInvaders.forEach(inv => sCtx.fillRect(inv.x, inv.y, inv.width, inv.height));
             if (spaceInvaders.length === 0) resetSpaceGame();
             spaceAnimationFrameId = requestAnimationFrame(spaceLoop);
         }
+        initJoystick('joy-space', (nx) => { spaceMoveDir = nx; }, () => { spaceMoveDir = 0; });
 
         /* 9. MICRO RACER */
         const rCanvas = document.getElementById("racer-canvas"), rCtx = rCanvas.getContext("2d");
@@ -714,58 +742,55 @@
         function moveCarLeft() { if (currentLane > 0) currentLane--; } function moveCarRight() { if (currentLane < 2) currentLane++; }
         function racerLoop() {
             if (activeGameId !== 'game-racer') return;
-            if (racerGameOver) { rCtx.fillStyle = "rgba(0,0,0,0.7)"; rCtx.fillRect(0,0,rCanvas.width,rCanvas.height); rCtx.fillStyle="#fff"; rCtx.textAlign="center"; rCtx.font="20px Arial"; rCtx.fillText("CRASH! Score: "+racerScore, rCanvas.width/2, rCanvas.height/2); return; }
-            if (trafficCars.length === 0 || (trafficCars[trafficCars.length - 1].y > 110 && Math.random() < 0.03)) {
+            if (racerGameOver) { rCtx.fillStyle = "rgba(0,0,0,0.7)"; rCtx.fillRect(0,0,rCanvas.width,rCanvas.height); rCtx.fillStyle="#fff"; rCtx.textAlign="center"; rCtx.font="18px Arial"; rCtx.fillText("CRASH! Score: "+racerScore, rCanvas.width/2, rCanvas.height/2); return; }
+            if (trafficCars.length === 0 || (trafficCars[trafficCars.length - 1].y > 100 && Math.random() < 0.03)) {
                 trafficCars.push({ x: lanes[Math.floor(Math.random() * 3)] - 15, y: -50, width: 30, height: 50 });
             }
             for (let i = trafficCars.length - 1; i >= 0; i--) {
                 trafficCars[i].y += 4;
-                if (lanes[currentLane] - 15 < trafficCars[i].x + 30 && lanes[currentLane] + 15 > trafficCars[i].x && 250 < trafficCars[i].y + 50 && 300 > trafficCars[i].y) racerGameOver = true;
+                if (lanes[currentLane] - 15 < trafficCars[i].x + 30 && lanes[currentLane] + 15 > trafficCars[i].x && 210 < trafficCars[i].y + 50 && 260 > trafficCars[i].y) racerGameOver = true;
                 if (trafficCars[i].y > rCanvas.height) { trafficCars.splice(i, 1); racerScore += 5; document.getElementById('racer-score').innerText = `Score: ${racerScore}`; }
             }
             rCtx.fillStyle = "#334155"; rCtx.fillRect(0, 0, rCanvas.width, rCanvas.height);
             rCtx.fillStyle = "#f87171"; trafficCars.forEach(c => rCtx.fillRect(c.x, c.y, c.width, c.height));
-            rCtx.fillStyle = "#ef4444"; rCtx.fillRect(lanes[currentLane] - 15, 250, 30, 50);
+            rCtx.fillStyle = "#ef4444"; rCtx.fillRect(lanes[currentLane] - 15, 210, 30, 50);
             racerAnimationFrameId = requestAnimationFrame(racerLoop);
         }
 
         /* 10. DINO RUNNER */
         const dCanvas = document.getElementById("dino-canvas"), dCtx = dCanvas.getContext("2d");
-        let dinoY = 140, dinoVY = 0, cacti = [], dinoScore = 0, dinoGameOver = false, dinoAnimationFrameId, dinoFrameCount = 0;
+        let dinoY = 120, dinoVY = 0, cacti = [], dinoScore = 0, dinoGameOver = false, dinoAnimationFrameId, dinoFrameCount = 0;
         function resetDinoGame() {
-            cancelAnimationFrame(dinoAnimationFrameId); dinoY = 140; dinoVY = 0; cacti = []; dinoScore = 0; dinoFrameCount = 0; dinoGameOver = false;
+            cancelAnimationFrame(dinoAnimationFrameId); dinoY = 120; dinoVY = 0; cacti = []; dinoScore = 0; dinoFrameCount = 0; dinoGameOver = false;
             document.getElementById('dino-score').innerText = `Score: ${dinoScore}`; dinoLoop();
         }
-        function triggerDinoJump() { if (activeGameId === 'game-dino') { if (dinoGameOver) resetDinoGame(); else if (dinoY >= 140) dinoVY = -8; } }
+        function triggerDinoJump() { if (activeGameId === 'game-dino') { if (dinoGameOver) resetDinoGame(); else if (dinoY >= 120) dinoVY = -8; } }
         function dinoLoop() {
             if (activeGameId !== 'game-dino') return;
-            if (dinoGameOver) { dCtx.fillStyle = "rgba(0,0,0,0.6)"; dCtx.fillRect(0,0,dCanvas.width,dCanvas.height); dCtx.fillStyle="#fff"; dCtx.textAlign="center"; dCtx.font="20px Arial"; dCtx.fillText("Game Over! Score: "+dinoScore, dCanvas.width/2, dCanvas.height/2); return; }
-            dinoVY += 0.42; dinoY += dinoVY; if (dinoY >= 140) { dinoY = 140; dinoVY = 0; }
+            if (dinoGameOver) { dCtx.fillStyle = "rgba(0,0,0,0.6)"; dCtx.fillRect(0,0,dCanvas.width,dCanvas.height); dCtx.fillStyle="#fff"; dCtx.textAlign="center"; dCtx.font="18px Arial"; dCtx.fillText("Game Over! Score: "+dinoScore, dCanvas.width/2, dCanvas.height/2); return; }
+            dinoVY += 0.42; dinoY += dinoVY; if (dinoY >= 120) { dinoY = 120; dinoVY = 0; }
             if (dinoFrameCount % 5 === 0) { dinoScore++; document.getElementById('dino-score').innerText = `Score: ${dinoScore}`; }
-            if (dinoFrameCount % 80 === 0 && Math.random() > 0.3) cacti.push({ x: dCanvas.width, y: 145, width: 14, height: 25 });
+            if (dinoFrameCount % 80 === 0 && Math.random() > 0.3) cacti.push({ x: dCanvas.width, y: 125, width: 14, height: 25 });
             for (let i = cacti.length - 1; i >= 0; i--) {
                 cacti[i].x -= 4.5;
                 if (40 + 20 > cacti[i].x && 40 < cacti[i].x + 14 && dinoY + 30 > cacti[i].y) dinoGameOver = true;
                 if (cacti[i].x + 14 < 0) cacti.splice(i, 1);
             }
             dCtx.clearRect(0, 0, dCanvas.width, dCanvas.height);
-            dCtx.strokeStyle = "#555"; dCtx.beginPath(); dCtx.moveTo(0, 170); dCtx.lineTo(dCanvas.width, 170); dCtx.stroke();
+            dCtx.strokeStyle = "#555"; dCtx.beginPath(); dCtx.moveTo(0, 150); dCtx.lineTo(dCanvas.width, 150); dCtx.stroke();
             dCtx.fillStyle = "#15803d"; cacti.forEach(c => dCtx.fillRect(c.x, c.y, c.width, c.height));
             dCtx.fillStyle = "#4b5563"; dCtx.fillRect(40, dinoY, 20, 30);
             dinoFrameCount++; dinoAnimationFrameId = requestAnimationFrame(dinoLoop);
         }
 
-        /* 11. BLOCK BLAST 🧩 */
+        /* 11. BLOCK BLAST (DRAG AND DROP SUPPORT) 🧩 */
         let bbGrid = Array(8).fill(null).map(() => Array(8).fill(0));
-        let bbPieces = [], bbSelectedPieceIdx = null, bbScore = 0;
-        const bbPieceShapes = [
-            [[1,1],[1,1]], [[1,1,1]], [[1],[1],[1]], [[1,0],[1,1]], [[1,1,1],[0,1,0]], [[1]]
-        ];
+        let bbPieces = [], bbScore = 0, draggingPieceIdx = null;
+        const bbPieceShapes = [[[1,1],[1,1]], [[1,1,1]], [[1],[1],[1]], [[1,0],[1,1]], [[1,1,1],[0,1,0]], [[1]]];
 
         function resetBlockBlast() {
             bbGrid = Array(8).fill(null).map(() => Array(8).fill(0));
-            bbScore = 0; bbSelectedPieceIdx = null;
-            document.getElementById('bb-score').innerText = `Score: ${bbScore}`;
+            bbScore = 0; document.getElementById('bb-score').innerText = `Score: ${bbScore}`;
             renderBBBoard(); generateBBPieces();
         }
 
@@ -775,17 +800,14 @@
                 for (let c = 0; c < 8; c++) {
                     const cell = document.createElement('div');
                     cell.className = 'bb-cell' + (bbGrid[r][c] ? ' filled' : '');
-                    cell.onclick = () => placeBBPiece(r, c);
+                    cell.dataset.r = r; cell.dataset.c = c;
                     boardEl.appendChild(cell);
                 }
             }
         }
 
         function generateBBPieces() {
-            bbPieces = [];
-            for (let i = 0; i < 3; i++) {
-                bbPieces.push(bbPieceShapes[Math.floor(Math.random() * bbPieceShapes.length)]);
-            }
+            bbPieces = [0, 1, 2].map(() => bbPieceShapes[Math.floor(Math.random() * bbPieceShapes.length)]);
             renderBBPieces();
         }
 
@@ -794,14 +816,11 @@
             bbPieces.forEach((shape, idx) => {
                 if (!shape) return;
                 const card = document.createElement('div');
-                card.className = 'bb-piece-card' + (bbSelectedPieceIdx === idx ? ' selected' : '');
-                card.onclick = () => { bbSelectedPieceIdx = idx; renderBBPieces(); };
+                card.className = 'bb-piece-card';
+                card.dataset.idx = idx;
                 
                 const gridEl = document.createElement('div');
-                gridEl.style.display = 'grid';
-                gridEl.style.gridTemplateColumns = `repeat(${shape[0].length}, 12px)`;
-                gridEl.style.gap = '2px';
-                
+                gridEl.style.display = 'grid'; gridEl.style.gridTemplateColumns = `repeat(${shape[0].length}, 12px)`; gridEl.style.gap = '2px';
                 for (let r = 0; r < shape.length; r++) {
                     for (let c = 0; c < shape[0].length; c++) {
                         const sq = document.createElement('div');
@@ -810,147 +829,215 @@
                         gridEl.appendChild(sq);
                     }
                 }
-                card.appendChild(gridEl); container.appendChild(card);
+                card.appendChild(gridEl);
+                card.addEventListener('touchstart', (e) => startDragBB(e, idx), { passive: false });
+                card.addEventListener('mousedown', (e) => startDragBB(e, idx));
+                container.appendChild(card);
             });
         }
 
-        function placeBBPiece(r, c) {
-            if (bbSelectedPieceIdx === null || !bbPieces[bbSelectedPieceIdx]) return;
-            const shape = bbPieces[bbSelectedPieceIdx];
+        function startDragBB(e, idx) {
+            e.preventDefault(); draggingPieceIdx = idx;
+            const proxy = document.getElementById('bb-drag-proxy');
+            proxy.innerHTML = ''; proxy.style.display = 'block';
             
-            // Check fit
+            const shape = bbPieces[idx];
+            const gridEl = document.createElement('div');
+            gridEl.style.display = 'grid'; gridEl.style.gridTemplateColumns = `repeat(${shape[0].length}, 28px)`; gridEl.style.gap = '2px';
+            for (let r = 0; r < shape.length; r++) {
+                for (let c = 0; c < shape[0].length; c++) {
+                    const sq = document.createElement('div'); sq.style.width = '28px'; sq.style.height = '28px';
+                    sq.style.backgroundColor = shape[r][c] ? '#3b82f6' : 'transparent'; sq.style.borderRadius = '4px';
+                    gridEl.appendChild(sq);
+                }
+            }
+            proxy.appendChild(gridEl); moveDragProxy(e);
+
+            window.addEventListener('touchmove', dragBBMove, { passive: false });
+            window.addEventListener('mousemove', dragBBMove);
+            window.addEventListener('touchend', dragBBEnd);
+            window.addEventListener('mouseup', dragBBEnd);
+        }
+
+        function moveDragProxy(e) {
+            const touch = e.touches ? e.touches[0] : e;
+            const proxy = document.getElementById('bb-drag-proxy');
+            proxy.style.left = touch.clientX + 'px'; proxy.style.top = (touch.clientY - 40) + 'px';
+        }
+
+        function dragBBMove(e) {
+            if (draggingPieceIdx === null) return; moveDragProxy(e);
+            const touch = e.touches ? e.touches[0] : e;
+            const board = document.getElementById('bb-board').getBoundingClientRect();
+            document.querySelectorAll('.bb-cell.hover').forEach(el => el.classList.remove('hover'));
+
+            if (touch.clientX >= board.left && touch.clientX <= board.right && touch.clientY >= board.top && touch.clientY <= board.bottom) {
+                let c = Math.floor((touch.clientX - board.left) / 36);
+                let r = Math.floor((touch.clientY - board.top) / 36);
+                const shape = bbPieces[draggingPieceIdx];
+                if (canPlaceBBPiece(r, c, shape)) {
+                    for (let pr = 0; pr < shape.length; pr++) {
+                        for (let pc = 0; pc < shape[0].length; pc++) {
+                            if (shape[pr][pc]) {
+                                let targetCell = document.querySelector(`.bb-cell[data-r="${r+pr}"][data-c="${c+pc}"]`);
+                                if (targetCell) targetCell.classList.add('hover');
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        function dragBBEnd(e) {
+            if (draggingPieceIdx === null) return;
+            const proxy = document.getElementById('bb-drag-proxy');
+            proxy.style.display = 'none';
+            const touch = e.changedTouches ? e.changedTouches[0] : e;
+            const board = document.getElementById('bb-board').getBoundingClientRect();
+
+            if (touch.clientX >= board.left && touch.clientX <= board.right && touch.clientY >= board.top && touch.clientY <= board.bottom) {
+                let c = Math.floor((touch.clientX - board.left) / 36);
+                let r = Math.floor((touch.clientY - board.top) / 36);
+                const shape = bbPieces[draggingPieceIdx];
+                if (canPlaceBBPiece(r, c, shape)) {
+                    for (let pr = 0; pr < shape.length; pr++) {
+                        for (let pc = 0; pc < shape[0].length; pc++) {
+                            if (shape[pr][pc]) bbGrid[r + pr][c + pc] = 1;
+                        }
+                    }
+                    bbScore += 10; bbPieces[draggingPieceIdx] = null;
+                    clearBBLines(); renderBBBoard(); renderBBPieces();
+                    if (bbPieces.every(p => p === null)) generateBBPieces();
+                }
+            }
+
+            document.querySelectorAll('.bb-cell.hover').forEach(el => el.classList.remove('hover'));
+            draggingPieceIdx = null;
+            window.removeEventListener('touchmove', dragBBMove); window.removeEventListener('mousemove', dragBBMove);
+            window.removeEventListener('touchend', dragBBEnd); window.removeEventListener('mouseup', dragBBEnd);
+        }
+
+        function canPlaceBBPiece(r, c, shape) {
             for (let pr = 0; pr < shape.length; pr++) {
                 for (let pc = 0; pc < shape[0].length; pc++) {
                     if (shape[pr][pc]) {
                         let gr = r + pr, gc = c + pc;
-                        if (gr >= 8 || gc >= 8 || bbGrid[gr][gc]) return; // invalid
+                        if (gr < 0 || gr >= 8 || gc < 0 || gc >= 8 || bbGrid[gr][gc]) return false;
                     }
                 }
             }
+            return true;
+        }
 
-            // Place shape
-            for (let pr = 0; pr < shape.length; pr++) {
-                for (let pc = 0; pc < shape[0].length; pc++) {
-                    if (shape[pr][pc]) bbGrid[r + pr][c + pc] = 1;
-                }
-            }
-
-            bbScore += 10;
-            bbPieces[bbSelectedPieceIdx] = null;
-            bbSelectedPieceIdx = null;
-
-            // Clear Lines
+        function clearBBLines() {
             let rowsToClear = [], colsToClear = [];
             for (let i = 0; i < 8; i++) {
                 if (bbGrid[i].every(val => val === 1)) rowsToClear.push(i);
                 if (bbGrid.map(row => row[i]).every(val => val === 1)) colsToClear.push(i);
             }
-
             rowsToClear.forEach(rIdx => bbGrid[rIdx].fill(0));
             colsToClear.forEach(cIdx => { for (let r = 0; r < 8; r++) bbGrid[r][cIdx] = 0; });
             bbScore += (rowsToClear.length + colsToClear.length) * 80;
-
             document.getElementById('bb-score').innerText = `Score: ${bbScore}`;
-            renderBBBoard(); renderBBPieces();
-
-            if (bbPieces.every(p => p === null)) generateBBPieces();
         }
 
         /* 12. ARENA SHOOTER 🔫 */
         const aCanvas = document.getElementById("arena-canvas"), aCtx = aCanvas.getContext("2d");
-        let arenaPlayer = { x: 190, y: 140, radius: 12, hp: 100 }, arenaEnemies = [], arenaBullets = [], arenaKills = 0, arenaGameOver = false, arenaAnimationFrameId;
-        let arenaKeys = {}, arenaMousePos = { x: 0, y: 0 }, currentWeaponIdx = 0;
+        let arenaPlayer = { x: 170, y: 125, radius: 10, hp: 100 }, arenaEnemies = [], arenaBullets = [], arenaKills = 0, arenaGameOver = false, arenaAnimationFrameId;
+        let arenaMoveVector = { x: 0, y: 0 }, currentWeaponIdx = 0, isFiringArena = false;
 
         const weapons = [
-            { name: "Pistol", speed: 8, spread: 0.05, count: 1, fireRate: 200, damage: 35 },
-            { name: "Shotgun", speed: 7, spread: 0.35, count: 5, fireRate: 600, damage: 20 },
-            { name: "Rifle", speed: 10, spread: 0.1, count: 1, fireRate: 90, damage: 18 }
+            { name: "Pistol", speed: 7, spread: 0.05, count: 1, fireRate: 220, damage: 35 },
+            { name: "Shotgun", speed: 6, spread: 0.35, count: 5, fireRate: 650, damage: 22 },
+            { name: "Rifle", speed: 9, spread: 0.1, count: 1, fireRate: 100, damage: 18 }
         ];
         let lastShotTime = 0;
 
         function setArenaWeapon(idx) {
             currentWeaponIdx = idx;
-            document.querySelectorAll('.weapon-btn').forEach((btn, i) => {
-                btn.classList.toggle('active', i === idx);
-            });
+            document.querySelectorAll('.weapon-btn').forEach((btn, i) => btn.classList.toggle('active', i === idx));
         }
 
         function resetArenaOps() {
             cancelAnimationFrame(arenaAnimationFrameId);
-            arenaPlayer = { x: 190, y: 140, radius: 12, hp: 100 };
+            arenaPlayer = { x: 170, y: 125, radius: 10, hp: 100 };
             arenaEnemies = []; arenaBullets = []; arenaKills = 0; arenaGameOver = false;
-            document.getElementById('arena-score').innerText = `Kills: ${arenaKills} | Health: ${arenaPlayer.hp}%`;
+            document.getElementById('arena-score').innerText = `Kills: ${arenaKills} | HP: ${arenaPlayer.hp}%`;
             arenaLoop();
         }
+
+        initJoystick('joy-arena', (nx, ny) => {
+            arenaMoveVector.x = nx; arenaMoveVector.y = ny;
+        }, () => {
+            arenaMoveVector.x = 0; arenaMoveVector.y = 0;
+        });
+
+        const shootBtn = document.getElementById('arena-shoot-btn');
+        shootBtn.addEventListener('touchstart', (e) => { e.preventDefault(); if(arenaGameOver) resetArenaOps(); isFiringArena = true; });
+        shootBtn.addEventListener('touchend', () => { isFiringArena = false; });
+        shootBtn.addEventListener('mousedown', () => { if(arenaGameOver) resetArenaOps(); isFiringArena = true; });
+        window.addEventListener('mouseup', () => { isFiringArena = false; });
 
         function arenaLoop() {
             if (activeGameId !== 'game-arena') return;
 
             if (arenaGameOver) {
                 aCtx.fillStyle = "rgba(0,0,0,0.8)"; aCtx.fillRect(0, 0, aCanvas.width, aCanvas.height);
-                aCtx.fillStyle = "#ef4444"; aCtx.textAlign = "center"; aCtx.font = "bold 22px Arial";
+                aCtx.fillStyle = "#ef4444"; aCtx.textAlign = "center"; aCtx.font = "bold 20px Arial";
                 aCtx.fillText("MISSION FAILED!", aCanvas.width / 2, aCanvas.height / 2 - 10);
                 aCtx.fillStyle = "#fff"; aCtx.font = "14px Arial";
                 aCtx.fillText(`Total CPU Eliminations: ${arenaKills}`, aCanvas.width / 2, aCanvas.height / 2 + 20);
                 return;
             }
 
-            updateArena();
-            drawArena();
-
+            if (isFiringArena) autoFireArena();
+            updateArena(); drawArena();
             arenaAnimationFrameId = requestAnimationFrame(arenaLoop);
         }
 
         function updateArena() {
-            // Player Movement
-            if ((arenaKeys['w'] || arenaKeys['ArrowUp']) && arenaPlayer.y > arenaPlayer.radius) arenaPlayer.y -= 3;
-            if ((arenaKeys['s'] || arenaKeys['ArrowDown']) && arenaPlayer.y < aCanvas.height - arenaPlayer.radius) arenaPlayer.y += 3;
-            if ((arenaKeys['a'] || arenaKeys['ArrowLeft']) && arenaPlayer.x > arenaPlayer.radius) arenaPlayer.x -= 3;
-            if ((arenaKeys['d'] || arenaKeys['ArrowRight']) && arenaPlayer.x < aCanvas.width - arenaPlayer.radius) arenaPlayer.x += 3;
+            // Joystick Player Movement
+            arenaPlayer.x += arenaMoveVector.x * 3;
+            arenaPlayer.y += arenaMoveVector.y * 3;
+            arenaPlayer.x = Math.max(arenaPlayer.radius, Math.min(aCanvas.width - arenaPlayer.radius, arenaPlayer.x));
+            arenaPlayer.y = Math.max(arenaPlayer.radius, Math.min(aCanvas.height - arenaPlayer.radius, arenaPlayer.y));
 
             // Spawn CPU Enemies
-            if (arenaEnemies.length < 5 + Math.floor(arenaKills / 5) && Math.random() < 0.03) {
+            if (arenaEnemies.length < 4 + Math.floor(arenaKills / 4) && Math.random() < 0.03) {
                 let side = Math.floor(Math.random() * 4);
                 let ex = side % 2 === 0 ? (side === 0 ? 0 : aCanvas.width) : Math.random() * aCanvas.width;
                 let ey = side % 2 !== 0 ? (side === 1 ? 0 : aCanvas.height) : Math.random() * aCanvas.height;
-                arenaEnemies.push({ x: ex, y: ey, radius: 10, hp: 50, speed: 1.2 + Math.random() * 0.8 });
+                arenaEnemies.push({ x: ex, y: ey, radius: 9, hp: 50, speed: 1.1 + Math.random() * 0.7 });
             }
 
             // Move Bullets
             for (let b = arenaBullets.length - 1; b >= 0; b--) {
                 let bullet = arenaBullets[b];
                 bullet.x += bullet.vx; bullet.y += bullet.vy;
-                if (bullet.x < 0 || bullet.x > aCanvas.width || bullet.y < 0 || bullet.y > aCanvas.height) {
-                    arenaBullets.splice(b, 1);
-                }
+                if (bullet.x < 0 || bullet.x > aCanvas.width || bullet.y < 0 || bullet.y > aCanvas.height) arenaBullets.splice(b, 1);
             }
 
             // Move Enemies & Collisions
             for (let e = arenaEnemies.length - 1; e >= 0; e--) {
                 let enemy = arenaEnemies[e];
                 let angle = Math.atan2(arenaPlayer.y - enemy.y, arenaPlayer.x - enemy.x);
-                enemy.x += Math.cos(angle) * enemy.speed;
-                enemy.y += Math.sin(angle) * enemy.speed;
+                enemy.x += Math.cos(angle) * enemy.speed; enemy.y += Math.sin(angle) * enemy.speed;
 
-                // Player Collision
                 let distToPlayer = Math.hypot(arenaPlayer.x - enemy.x, arenaPlayer.y - enemy.y);
                 if (distToPlayer < arenaPlayer.radius + enemy.radius) {
                     arenaPlayer.hp -= 1;
-                    document.getElementById('arena-score').innerText = `Kills: ${arenaKills} | Health: ${Math.max(0, arenaPlayer.hp)}%`;
+                    document.getElementById('arena-score').innerText = `Kills: ${arenaKills} | HP: ${Math.max(0, arenaPlayer.hp)}%`;
                     if (arenaPlayer.hp <= 0) arenaGameOver = true;
                 }
 
-                // Bullet Collision
                 for (let b = arenaBullets.length - 1; b >= 0; b--) {
                     let bullet = arenaBullets[b];
                     let distToBullet = Math.hypot(bullet.x - enemy.x, bullet.y - enemy.y);
                     if (distToBullet < enemy.radius) {
-                        enemy.hp -= bullet.damage;
-                        arenaBullets.splice(b, 1);
+                        enemy.hp -= bullet.damage; arenaBullets.splice(b, 1);
                         if (enemy.hp <= 0) {
-                            arenaEnemies.splice(e, 1);
-                            arenaKills++;
-                            document.getElementById('arena-score').innerText = `Kills: ${arenaKills} | Health: ${arenaPlayer.hp}%`;
+                            arenaEnemies.splice(e, 1); arenaKills++;
+                            document.getElementById('arena-score').innerText = `Kills: ${arenaKills} | HP: ${arenaPlayer.hp}%`;
                         }
                         break;
                     }
@@ -960,103 +1047,44 @@
 
         function drawArena() {
             aCtx.clearRect(0, 0, aCanvas.width, aCanvas.height);
+            aCtx.fillStyle = "#f59e0b"; arenaBullets.forEach(b => { aCtx.beginPath(); aCtx.arc(b.x, b.y, 3, 0, Math.PI * 2); aCtx.fill(); });
+            aCtx.fillStyle = "#ef4444"; arenaEnemies.forEach(e => { aCtx.beginPath(); aCtx.arc(e.x, e.y, e.radius, 0, Math.PI * 2); aCtx.fill(); });
 
-            // Draw Bullets
-            aCtx.fillStyle = "#f59e0b";
-            arenaBullets.forEach(b => { aCtx.beginPath(); aCtx.arc(b.x, b.y, 3, 0, Math.PI * 2); aCtx.fill(); });
+            // Auto-aim at nearest enemy or default forward
+            let targetAngle = -Math.PI / 2;
+            if (arenaEnemies.length > 0) {
+                let nearest = arenaEnemies.reduce((prev, curr) => Math.hypot(arenaPlayer.x - curr.x, arenaPlayer.y - curr.y) < Math.hypot(arenaPlayer.x - prev.x, arenaPlayer.y - prev.y) ? curr : prev);
+                targetAngle = Math.atan2(nearest.y - arenaPlayer.y, nearest.x - arenaPlayer.x);
+            }
 
-            // Draw Enemies (Red CPU units)
-            aCtx.fillStyle = "#ef4444";
-            arenaEnemies.forEach(e => { aCtx.beginPath(); aCtx.arc(e.x, e.y, e.radius, 0, Math.PI * 2); aCtx.fill(); });
-
-            // Draw Player (Blue soldier with gun)
-            let angle = Math.atan2(arenaMousePos.y - arenaPlayer.y, arenaMousePos.x - arenaPlayer.x);
             aCtx.save();
             aCtx.translate(arenaPlayer.x, arenaPlayer.y);
-            aCtx.rotate(angle);
-            
-            // Gun Barrel
-            aCtx.fillStyle = "#94a3b8";
-            aCtx.fillRect(0, -2, 18, 4);
-            
-            // Player Body
-            aCtx.fillStyle = "#3b82f6";
-            aCtx.beginPath(); aCtx.arc(0, 0, arenaPlayer.radius, 0, Math.PI * 2); aCtx.fill();
+            aCtx.rotate(targetAngle);
+            aCtx.fillStyle = "#94a3b8"; aCtx.fillRect(0, -2, 16, 4);
+            aCtx.fillStyle = "#3b82f6"; aCtx.beginPath(); aCtx.arc(0, 0, arenaPlayer.radius, 0, Math.PI * 2); aCtx.fill();
             aCtx.restore();
         }
 
-        function fireArenaWeapon() {
-            const now = Date.now();
-            const w = weapons[currentWeaponIdx];
+        function autoFireArena() {
+            const now = Date.now(); const w = weapons[currentWeaponIdx];
             if (now - lastShotTime < w.fireRate) return;
             lastShotTime = now;
 
-            const baseAngle = Math.atan2(arenaMousePos.y - arenaPlayer.y, arenaMousePos.x - arenaPlayer.x);
+            let baseAngle = -Math.PI / 2;
+            if (arenaEnemies.length > 0) {
+                let nearest = arenaEnemies.reduce((prev, curr) => Math.hypot(arenaPlayer.x - curr.x, arenaPlayer.y - curr.y) < Math.hypot(arenaPlayer.x - prev.x, arenaPlayer.y - prev.y) ? curr : prev);
+                baseAngle = Math.atan2(nearest.y - arenaPlayer.y, nearest.x - arenaPlayer.x);
+            }
+
             for (let i = 0; i < w.count; i++) {
                 let spreadAngle = baseAngle + (Math.random() - 0.5) * w.spread;
                 arenaBullets.push({
                     x: arenaPlayer.x, y: arenaPlayer.y,
-                    vx: Math.cos(spreadAngle) * w.speed,
-                    vy: Math.sin(spreadAngle) * w.speed,
+                    vx: Math.cos(spreadAngle) * w.speed, vy: Math.sin(spreadAngle) * w.speed,
                     damage: w.damage
                 });
             }
         }
-
-        // Event Listeners
-        window.addEventListener('keydown', e => {
-            arenaKeys[e.key] = true;
-            if (activeGameId === 'game-snake') {
-                if (e.key === 'ArrowUp' || e.key === 'w') changeSnakeDir('UP');
-                if (e.key === 'ArrowDown' || e.key === 's') changeSnakeDir('DOWN');
-                if (e.key === 'ArrowLeft' || e.key === 'a') changeSnakeDir('LEFT');
-                if (e.key === 'ArrowRight' || e.key === 'd') changeSnakeDir('RIGHT');
-            }
-            if (activeGameId === 'game-flappy' && e.code === "Space") { e.preventDefault(); handleFlappyAction(); }
-            if (activeGameId === 'game-space') {
-                if (e.key === 'ArrowLeft' || e.key === 'a') spaceMoveLeft = true;
-                if (e.key === 'ArrowRight' || e.key === 'd') spaceMoveRight = true;
-                if (e.code === 'Space') { e.preventDefault(); if (spaceGameOver) resetSpaceGame(); else shootLaser(); }
-            }
-            if (activeGameId === 'game-racer') {
-                if (e.key === 'ArrowLeft' || e.key === 'a') moveCarLeft();
-                if (e.key === 'ArrowRight' || e.key === 'd') moveCarRight();
-                if (e.code === 'Space' && racerGameOver) resetRacerGame();
-            }
-            if (activeGameId === 'game-dino' && (e.code === 'Space' || e.key === 'ArrowUp')) { e.preventDefault(); triggerDinoJump(); }
-            
-            // Arena Weapon Switch Shortcuts
-            if (activeGameId === 'game-arena') {
-                if (e.key === '1') setArenaWeapon(0);
-                if (e.key === '2') setArenaWeapon(1);
-                if (e.key === '3') setArenaWeapon(2);
-                if (e.key === 'q' || e.key === 'Q') setArenaWeapon((currentWeaponIdx + 1) % 3);
-            }
-        });
-
-        window.addEventListener('keyup', e => {
-            arenaKeys[e.key] = false;
-            if (activeGameId === 'game-space') {
-                if (e.key === 'ArrowLeft' || e.key === 'a') spaceMoveLeft = false;
-                if (e.key === 'ArrowRight' || e.key === 'd') spaceMoveRight = false;
-            }
-        });
-
-        aCanvas.addEventListener('mousemove', e => {
-            const rect = aCanvas.getBoundingClientRect();
-            arenaMousePos.x = e.clientX - rect.left;
-            arenaMousePos.y = e.clientY - rect.top;
-        });
-
-        aCanvas.addEventListener('mousedown', () => {
-            if (arenaGameOver) resetArenaOps();
-            else fireArenaWeapon();
-        });
-
-        fCanvas.addEventListener("mousedown", () => handleFlappyAction());
-        sCanvas.addEventListener("mousedown", () => { if (spaceGameOver) resetSpaceGame(); });
-        rCanvas.addEventListener("mousedown", () => { if (racerGameOver) resetRacerGame(); });
-        dCanvas.addEventListener("mousedown", () => triggerDinoJump());
 
         switchGame('game-clicker');
     </script>
