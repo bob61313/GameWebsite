@@ -1,464 +1,538 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Arcade: Flappy Pigeon & Dino Jump</title>
-  <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: #1a1a24;
-      color: #fff;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
-      user-select: none;
-    }
-    .tabs {
-      display: flex;
-      gap: 12px;
-      margin-bottom: 16px;
-    }
-    .tab-btn {
-      padding: 10px 24px;
-      font-size: 16px;
-      font-weight: bold;
-      border: 2px solid #4a4e69;
-      background: #22223b;
-      color: #c9ada7;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: 0.2s ease;
-    }
-    .tab-btn.active, .tab-btn:hover {
-      background: #4a4e69;
-      color: #fff;
-      border-color: #9a8c98;
-    }
-    .game-container {
-      position: relative;
-      background: #000;
-      border: 4px solid #4a4e69;
-      border-radius: 12px;
-      overflow: hidden;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-    }
-    canvas { display: block; cursor: pointer; }
-    .instructions {
-      margin-top: 14px;
-      font-size: 14px;
-      color: #9a8c98;
-      text-align: center;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>The Ultimate Arcade Portal</title>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --accent: #3b82f6;
+            --accent-hover: #2563eb;
+            --text: #f8fafc;
+            --text-muted: #94a3b8;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text);
+            margin: 0;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        h1 {
+            font-size: 2rem;
+            margin: 5px 0;
+            background: linear-gradient(to right, #60a5fa, #a78bfa, #f43f5e);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .menu-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            max-width: 500px;
+            margin-bottom: 15px;
+        }
+
+        .random-banner {
+            margin-bottom: 10px;
+        }
+
+        .game-selector {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 6px;
+            width: 100%;
+        }
+
+        .selector-btn {
+            background-color: var(--card-bg);
+            color: var(--text);
+            border: 1px solid #334155;
+            padding: 8px 4px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+        }
+
+        .selector-btn.active-tab {
+            background-color: var(--accent);
+            border-color: var(--accent);
+            color: white;
+        }
+
+        .selector-btn span.emoji {
+            font-size: 1.2rem;
+        }
+
+        .game-card {
+            background-color: var(--card-bg);
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            width: 100%;
+            max-width: 480px;
+            padding: 15px;
+            text-align: center;
+            box-sizing: border-box;
+            border: 1px solid #334155;
+            display: none;
+            position: relative;
+        }
+
+        .game-card.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h2 { margin-top: 0; color: #60a5fa; margin-bottom: 5px; font-size: 1.4rem; }
+
+        .game-content {
+            margin: 10px 0;
+            min-height: 150px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+
+        .score-display {
+            font-size: 1.1rem;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .btn {
+            background-color: var(--accent);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        canvas { border: 2px solid #334155; border-radius: 8px; max-width: 100%; height: auto; touch-action: none; }
+
+        /* MOBILE CONTROLS */
+        .mobile-controls-layer {
+            display: flex; justify-content: space-around; align-items: center;
+            width: 100%; margin-top: 10px; padding: 0 10px; box-sizing: border-box;
+        }
+
+        .action-btn {
+            width: 50px; height: 50px; background: #3b82f6; border-radius: 50%; border: 2px solid #60a5fa;
+            color: white; font-weight: bold; font-size: 1.1rem; display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3); touch-action: manipulation;
+        }
+        .action-btn:active { transform: scale(0.92); background-color: #2563eb; }
+    </style>
 </head>
 <body>
 
-  <div class="tabs">
-    <button class="tab-btn active" onclick="switchGame('pigeon')">🐦 Flappy Pigeon</button>
-    <button class="tab-btn" onclick="switchGame('dino')">🦖 Dino Jump</button>
-  </div>
+    <header>
+        <h1>⚡ Ultimate Arcade Portal ⚡</h1>
+        <p style="color: var(--text-muted); font-size: 0.85rem; margin: 0;">Stream & Play Arcade Games!</p>
+    </header>
 
-  <div class="game-container">
-    <canvas id="gameCanvas" width="480" height="480"></canvas>
-  </div>
+    <div class="menu-container">
+        <div class="random-banner">
+            <button class="btn" onclick="selectRandomGame()">🎲 Surprise Game!</button>
+        </div>
+        
+        <div class="game-selector">
+            <button class="selector-btn" id="btn-game-subway" onclick="switchGame('game-subway')"><span class="emoji">🏃</span>Subway Dash</button>
+            <button class="selector-btn" id="btn-game-space" onclick="switchGame('game-space')"><span class="emoji">🚀</span>Space Shooter</button>
+            <button class="selector-btn" id="btn-game-zombie" onclick="switchGame('game-zombie')"><span class="emoji">🧟</span>Z-Survival</button>
+            <button class="selector-btn" id="btn-game-target" onclick="switchGame('game-target')"><span class="emoji">🎯</span>Target Range</button>
+        </div>
+    </div>
 
-  <div class="instructions">
-    Press <b>SPACEBAR</b> or <b>CLICK / TAP</b> to Flap / Jump!
-  </div>
+    <!-- GAME 1: SUBWAY SURFERS CLONE (SUBWAY DASH) -->
+    <div id="game-subway" class="game-card">
+        <h2>Subway Dash 🏃</h2>
+        <p style="color: var(--text-muted); font-size: 0.8rem;">Left/Right = Change Lane | Up/Space = Jump | Down = Roll</p>
+        <div class="game-content">
+            <div id="subway-score" class="score-display">Score: 0 | Coins: 0</div>
+            <canvas id="subway-canvas" width="300" height="350"></canvas>
+            <div class="mobile-controls-layer">
+                <button class="action-btn" onclick="moveSubwayLeft()">◀</button>
+                <button class="action-btn" onclick="triggerSubwayJump()">▲</button>
+                <button class="action-btn" onclick="triggerSubwayRoll()">▼</button>
+                <button class="action-btn" onclick="moveSubwayRight()">▶</button>
+            </div>
+        </div>
+        <button class="btn" style="background-color: #475569;" onclick="resetSubwayGame()">Reset Game</button>
+    </div>
 
-  <script>
-    const canvas = document.getElementById('gameCanvas');
-    const ctx = canvas.getContext('2d');
+    <!-- GAME 2: SPACE SHOOTER -->
+    <div id="game-space" class="game-card">
+        <h2>Space Defender 🚀</h2>
+        <p style="color: var(--text-muted); font-size: 0.8rem;">A/D or Arrows = Move | Space / Button = Fire Laser</p>
+        <div class="game-content">
+            <div id="space-score" class="score-display">Score: 0</div>
+            <canvas id="space-canvas" width="300" height="300"></canvas>
+            <div class="mobile-controls-layer">
+                <button class="action-btn" onclick="spaceMoveLeft()">◀</button>
+                <button class="action-btn" style="background-color: #ef4444; width: 70px;" onclick="shootSpaceLaser()">🔥 FIRE</button>
+                <button class="action-btn" onclick="spaceMoveRight()">▶</button>
+            </div>
+        </div>
+        <button class="btn" style="background-color: #475569;" onclick="resetSpaceGame()">Reset Game</button>
+    </div>
 
-    let currentGame = 'pigeon';
-    let animationId = null;
-    let score = 0;
-    let highScorePigeon = 0;
-    let highScoreDino = 0;
-    let gameOver = false;
+    <!-- GAME 3: ZOMBIE SURVIVAL SHOOTER -->
+    <div id="game-zombie" class="game-card">
+        <h2>Z-Survival Shooter 🧟</h2>
+        <p style="color: var(--text-muted); font-size: 0.8rem;">WASD / Touch = Move | Click / Tap = Shoot Zombies</p>
+        <div class="game-content">
+            <div id="zombie-score" class="score-display">Kills: 0 | HP: 100%</div>
+            <canvas id="zombie-canvas" width="320" height="280"></canvas>
+        </div>
+        <button class="btn" style="background-color: #475569;" onclick="resetZombieGame()">Reset Game</button>
+    </div>
 
-    // --- INPUT HANDLING ---
-    function handleInput() {
-      if (gameOver) {
-        initGame();
-        return;
-      }
-      if (currentGame === 'pigeon') {
-        pigeon.vy = -7.5;
-        pigeon.wingUp = true;
-        setTimeout(() => pigeon.wingUp = false, 150);
-      } else if (currentGame === 'dino') {
-        if (dino.y >= dino.groundY) {
-          dino.vy = -12;
-        }
-      }
-    }
+    <!-- GAME 4: TARGET RANGE REFLEX SHOOTER -->
+    <div id="game-target" class="game-card">
+        <h2>Target Range 🎯</h2>
+        <p style="color: var(--text-muted); font-size: 0.8rem;">Click/Tap targets quickly before they disappear!</p>
+        <div class="game-content">
+            <div id="target-score" class="score-display">Hits: 0 | Time: 30s</div>
+            <canvas id="target-canvas" width="320" height="260"></canvas>
+        </div>
+        <button class="btn" style="background-color: #475569;" onclick="resetTargetGame()">Reset Game</button>
+    </div>
 
-    window.addEventListener('keydown', (e) => {
-      if (e.code === 'Space') {
-        e.preventDefault();
-        handleInput();
-      }
-    });
-    canvas.addEventListener('mousedown', handleInput);
-    canvas.addEventListener('touchstart', (e) => {
-      e.preventDefault();
-      handleInput();
-    });
+    <script>
+        const games = ['game-subway', 'game-space', 'game-zombie', 'game-target'];
+        let activeGameId = '';
 
-    function switchGame(game) {
-      currentGame = game;
-      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-      event.target.classList.add('active');
-      initGame();
-    }
+        function switchGame(targetGameId) {
+            cancelAnimationFrame(subwayAnimationFrameId);
+            cancelAnimationFrame(spaceAnimationFrameId);
+            cancelAnimationFrame(zombieAnimationFrameId);
+            clearInterval(targetTimerInterval);
 
-    function initGame() {
-      if (animationId) cancelAnimationFrame(animationId);
-      gameOver = false;
-      score = 0;
+            if (activeGameId) {
+                document.getElementById(activeGameId).classList.remove('active');
+                const prevTab = getTabIdForGame(activeGameId);
+                if (prevTab) document.getElementById(prevTab).classList.remove('active-tab');
+            }
 
-      if (currentGame === 'pigeon') {
-        initPigeonGame();
-      } else {
-        initDinoGame();
-      }
-      gameLoop();
-    }
+            activeGameId = targetGameId;
+            document.getElementById(activeGameId).classList.add('active');
+            const currentTab = getTabIdForGame(targetGameId);
+            if (currentTab) document.getElementById(currentTab).classList.add('active-tab');
 
-    // ==========================================
-    // GAME 1: FLAPPY PIGEON
-    // ==========================================
-    let pigeon, pipes, frameCount;
-
-    function initPigeonGame() {
-      pigeon = { x: 80, y: 200, vy: 0, radius: 16, wingUp: false };
-      pipes = [];
-      frameCount = 0;
-    }
-
-    function updatePigeon() {
-      pigeon.vy += 0.42; // Gravity
-      pigeon.y += pigeon.vy;
-
-      // Pipe Spawning
-      frameCount++;
-      if (frameCount % 90 === 0) {
-        const gapHeight = 130;
-        const minTop = 50;
-        const maxTop = canvas.height - gapHeight - 100;
-        const top = Math.floor(Math.random() * (maxTop - minTop + 1)) + minTop;
-        pipes.push({ x: canvas.width, top: top, bottom: canvas.height - top - gapHeight, passed: false });
-      }
-
-      // Check collision with floor/ceiling
-      if (pigeon.y + pigeon.radius >= canvas.height - 30 || pigeon.y - pigeon.radius <= 0) {
-        gameOver = true;
-      }
-
-      // Pipe updates & collision
-      for (let i = pipes.length - 1; i >= 0; i--) {
-        let p = pipes[i];
-        p.x -= 2.5;
-
-        // Collision Check
-        const pipeWidth = 55;
-        if (
-          pigeon.x + pigeon.radius > p.x &&
-          pigeon.x - pigeon.radius < p.x + pipeWidth
-        ) {
-          if (pigeon.y - pigeon.radius < p.top || pigeon.y + pigeon.radius > canvas.height - p.bottom) {
-            gameOver = true;
-          }
+            if (targetGameId === 'game-subway') resetSubwayGame();
+            if (targetGameId === 'game-space') resetSpaceGame();
+            if (targetGameId === 'game-zombie') resetZombieGame();
+            if (targetGameId === 'game-target') resetTargetGame();
         }
 
-        // Score
-        if (!p.passed && p.x + pipeWidth < pigeon.x) {
-          p.passed = true;
-          score++;
-          if (score > highScorePigeon) highScorePigeon = score;
+        function getTabIdForGame(gameId) { return 'btn-' + gameId; }
+        function selectRandomGame() {
+            let availableGames = games.filter(g => g !== activeGameId);
+            switchGame(availableGames[Math.floor(Math.random() * availableGames.length)]);
         }
 
-        // Remove off-screen pipes
-        if (p.x < -pipeWidth) pipes.splice(i, 1);
-      }
-    }
+        /* ==========================================
+           1. SUBWAY SURFERS CLONE (SUBWAY DASH)
+        ========================================== */
+        const subCanvas = document.getElementById("subway-canvas");
+        const subCtx = subCanvas.getContext("2d");
+        const subLanes = [60, 150, 240];
+        let subCurrentLane = 1;
+        let subPlayerY = 270;
+        let subPlayerVY = 0;
+        let subIsJumping = false;
+        let subIsRolling = false;
+        let subRollTimer = 0;
+        let subObstacles = [];
+        let subCoins = [];
+        let subScore = 0;
+        let subCoinCount = 0;
+        let subSpeed = 5;
+        let subGameOver = false;
+        let subwayAnimationFrameId;
+        let subFrameCount = 0;
 
-    function drawPigeonGame() {
-      // Sky
-      ctx.fillStyle = '#70c5ce';
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-      // City Background Hills
-      ctx.fillStyle = '#bce6eb';
-      ctx.beginPath();
-      ctx.arc(100, 480, 200, Math.PI, 0);
-      ctx.arc(350, 480, 180, Math.PI, 0);
-      ctx.fill();
-
-      // Ground
-      ctx.fillStyle = '#ded895';
-      ctx.fillRect(0, canvas.height - 30, canvas.width, 30);
-      ctx.fillStyle = '#73bf2e';
-      ctx.fillRect(0, canvas.height - 30, canvas.width, 8);
-
-      // Pipes (Classic Green Pipes with Caps)
-      pipes.forEach(p => {
-        const pipeWidth = 55;
-        const capHeight = 22;
-
-        ctx.fillStyle = '#73bf2e';
-        ctx.strokeStyle = '#2d5a06';
-        ctx.lineWidth = 3;
-
-        // Top Pipe Body & Cap
-        ctx.fillRect(p.x, 0, pipeWidth, p.top);
-        ctx.strokeRect(p.x, 0, pipeWidth, p.top);
-        ctx.fillRect(p.x - 4, p.top - capHeight, pipeWidth + 8, capHeight);
-        ctx.strokeRect(p.x - 4, p.top - capHeight, pipeWidth + 8, capHeight);
-
-        // Bottom Pipe Body & Cap
-        const bottomY = canvas.height - p.bottom;
-        ctx.fillRect(p.x, bottomY, pipeWidth, p.bottom - 30);
-        ctx.strokeRect(p.x, bottomY, pipeWidth, p.bottom - 30);
-        ctx.fillRect(p.x - 4, bottomY, pipeWidth + 8, capHeight);
-        ctx.strokeRect(p.x - 4, bottomY, pipeWidth + 8, capHeight);
-      });
-
-      // Draw Pigeon
-      ctx.save();
-      ctx.translate(pigeon.x, pigeon.y);
-      let angle = Math.min(Math.PI / 4, Math.max(-Math.PI / 4, pigeon.vy * 0.08));
-      ctx.rotate(angle);
-
-      // Pigeon Body (Light Grey)
-      ctx.fillStyle = '#a0a5ab';
-      ctx.beginPath();
-      ctx.ellipse(0, 0, 18, 13, 0, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.strokeStyle = '#52575d';
-      ctx.lineWidth = 2;
-      ctx.stroke();
-
-      // Pigeon Neck / Head (Purple-Green Sheen)
-      ctx.fillStyle = '#6b5280';
-      ctx.beginPath();
-      ctx.arc(10, -5, 10, 0, Math.PI * 2);
-      ctx.fill();
-
-      // Eye
-      ctx.fillStyle = '#fff';
-      ctx.beginPath();
-      ctx.arc(14, -7, 3, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.fillStyle = '#000';
-      ctx.beginPath();
-      ctx.arc(15, -7, 1.5, 0, Math.PI * 2);
-      ctx.fill();
-
-      // Beak (Small orange)
-      ctx.fillStyle = '#fca311';
-      ctx.beginPath();
-      ctx.moveTo(18, -4);
-      ctx.lineTo(24, -2);
-      ctx.lineTo(18, 1);
-      ctx.closePath();
-      ctx.fill();
-
-      // Wing
-      ctx.fillStyle = '#7a808a';
-      ctx.beginPath();
-      if (pigeon.wingUp) {
-        ctx.ellipse(-3, -10, 10, 6, -Math.PI / 4, 0, Math.PI * 2);
-      } else {
-        ctx.ellipse(-3, 3, 10, 6, Math.PI / 6, 0, Math.PI * 2);
-      }
-      ctx.fill();
-
-      ctx.restore();
-
-      // Score Display
-      ctx.fillStyle = '#fff';
-      ctx.strokeStyle = '#000';
-      ctx.lineWidth = 4;
-      ctx.font = 'bold 32px sans-serif';
-      ctx.strokeText(`Score: ${score}`, 20, 45);
-      ctx.fillText(`Score: ${score}`, 20, 45);
-
-      ctx.font = 'bold 16px sans-serif';
-      ctx.strokeText(`Best: ${highScorePigeon}`, 20, 75);
-      ctx.fillText(`Best: ${highScorePigeon}`, 20, 75);
-    }
-
-    // ==========================================
-    // GAME 2: DINOSAUR JUMP OVER CACTI
-    // ==========================================
-    let dino, cacti, dinoFrame;
-
-    function initDinoGame() {
-      dino = { x: 60, y: 380, groundY: 380, vy: 0, width: 44, height: 48 };
-      cacti = [];
-      dinoFrame = 0;
-    }
-
-    function updateDino() {
-      dino.vy += 0.65; // Gravity
-      dino.y += dino.vy;
-
-      if (dino.y > dino.groundY) {
-        dino.y = dino.groundY;
-        dino.vy = 0;
-      }
-
-      dinoFrame++;
-
-      // Cactus Spawning
-      if (dinoFrame % 100 === 0) {
-        cacti.push({ x: canvas.width, width: 22 + Math.random() * 15, height: 38 + Math.random() * 18 });
-      }
-
-      // Update Cacti
-      for (let i = cacti.length - 1; i >= 0; i--) {
-        let c = cacti[i];
-        c.x -= 5;
-
-        // Collision Check
-        if (
-          dino.x < c.x + c.width - 6 &&
-          dino.x + dino.width - 6 > c.x &&
-          dino.y + dino.height > canvas.height - 52 - c.height
-        ) {
-          gameOver = true;
+        function resetSubwayGame() {
+            cancelAnimationFrame(subwayAnimationFrameId);
+            subCurrentLane = 1; subPlayerY = 270; subPlayerVY = 0;
+            subIsJumping = false; subIsRolling = false;
+            subObstacles = []; subCoins = [];
+            subScore = 0; subCoinCount = 0; subSpeed = 5; subFrameCount = 0;
+            subGameOver = false;
+            document.getElementById('subway-score').innerText = `Score: ${subScore} | Coins: ${subCoinCount}`;
+            subwayLoop();
         }
 
-        // Score
-        if (c.x < -c.width) {
-          cacti.splice(i, 1);
-          score++;
-          if (score > highScoreDino) highScoreDino = score;
+        function moveSubwayLeft() { if (subCurrentLane > 0) subCurrentLane--; }
+        function moveSubwayRight() { if (subCurrentLane < 2) subCurrentLane++; }
+        function triggerSubwayJump() {
+            if (subGameOver) resetSubwayGame();
+            else if (!subIsJumping) { subPlayerVY = -9; subIsJumping = true; }
         }
-      }
-    }
-
-    function drawDinoGame() {
-      // Desert Sky
-      ctx.fillStyle = '#f7f7f7';
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-      // Ground Line
-      ctx.strokeStyle = '#535353';
-      ctx.lineWidth = 2;
-      ctx.beginPath();
-      ctx.moveTo(0, canvas.height - 50);
-      ctx.lineTo(canvas.width, canvas.height - 50);
-      ctx.stroke();
-
-      // Ground bumps
-      ctx.fillStyle = '#888';
-      for (let i = 0; i < canvas.width; i += 60) {
-        let xPos = (i - (dinoFrame * 5) % 60);
-        ctx.fillRect(xPos, canvas.height - 45, 8, 2);
-      }
-
-      // Cacti (Green Cactuses)
-      cacti.forEach(c => {
-        let cY = canvas.height - 50 - c.height;
-
-        ctx.fillStyle = '#2b9348';
-        ctx.strokeStyle = '#004b23';
-        ctx.lineWidth = 2;
-
-        // Main Trunk
-        ctx.fillRect(c.x, cY, c.width, c.height);
-        ctx.strokeRect(c.x, cY, c.width, c.height);
-
-        // Cactus Side Arms
-        let armY = cY + c.height * 0.3;
-        ctx.fillRect(c.x - 6, armY, 6, 12);
-        ctx.fillRect(c.x - 6, armY - 4, 10, 6);
-
-        ctx.fillRect(c.x + c.width, armY + 6, 6, 12);
-        ctx.fillRect(c.x + c.width - 4, armY + 12, 10, 6);
-      });
-
-      // Dinosaur (Grey Pixelated T-Rex)
-      ctx.fillStyle = '#535353';
-      let dX = dino.x;
-      let dY = dino.y;
-
-      // Head
-      ctx.fillRect(dX + 16, dY, 24, 16);
-      // Eye
-      ctx.fillStyle = '#fff';
-      ctx.fillRect(dX + 30, dY + 3, 4, 4);
-      ctx.fillStyle = '#535353';
-
-      // Body & Tail
-      ctx.fillRect(dX + 8, dY + 12, 24, 22);
-      ctx.fillRect(dX, dY + 16, 12, 10); // Tail
-      ctx.fillRect(dX - 4, dY + 14, 6, 6); // Tail tip
-
-      // Tiny Arm
-      ctx.fillRect(dX + 28, dY + 20, 8, 4);
-
-      // Running Legs Animation
-      let legAnim = Math.floor(dinoFrame / 6) % 2;
-      if (dino.y < dino.groundY) { // Jump pose
-        ctx.fillRect(dX + 10, dY + 34, 6, 8);
-        ctx.fillRect(dX + 22, dY + 34, 6, 6);
-      } else { // Running pose
-        if (legAnim === 0) {
-          ctx.fillRect(dX + 8, dY + 34, 6, 10);
-          ctx.fillRect(dX + 22, dY + 34, 6, 6);
-        } else {
-          ctx.fillRect(dX + 8, dY + 34, 6, 6);
-          ctx.fillRect(dX + 22, dY + 34, 6, 10);
+        function triggerSubwayRoll() {
+            if (!subIsJumping) { subIsRolling = true; subRollTimer = 25; }
         }
-      }
 
-      // Score Display
-      ctx.fillStyle = '#535353';
-      ctx.font = 'bold 24px monospace';
-      ctx.fillText(`HI: ${String(highScoreDino).padStart(5, '0')}  ${String(score).padStart(5, '0')}`, 230, 40);
-    }
+        function subwayLoop() {
+            if (activeGameId !== 'game-subway') return;
+            if (subGameOver) {
+                subCtx.fillStyle = "rgba(0,0,0,0.75)"; subCtx.fillRect(0,0,subCanvas.width,subCanvas.height);
+                subCtx.fillStyle="#fff"; subCtx.textAlign="center"; subCtx.font="bold 22px Arial";
+                subCtx.fillText("CAUGHT ON THE TRACKS!", subCanvas.width/2, subCanvas.height/2 - 10);
+                subCtx.font="14px Arial"; subCtx.fillText(`Final Score: ${subScore} | Coins: ${subCoinCount}`, subCanvas.width/2, subCanvas.height/2 + 20);
+                return;
+            }
+            updateSubway(); drawSubway();
+            subFrameCount++;
+            subwayAnimationFrameId = requestAnimationFrame(subwayLoop);
+        }
 
-    // ==========================================
-    // MAIN GAME LOOP
-    // ==========================================
-    function gameLoop() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+        function updateSubway() {
+            // Jump physics
+            subPlayerVY += 0.5; subPlayerY += subPlayerVY;
+            if (subPlayerY >= 270) { subPlayerY = 270; subPlayerVY = 0; subIsJumping = false; }
 
-      if (currentGame === 'pigeon') {
-        if (!gameOver) updatePigeon();
-        drawPigeonGame();
-      } else {
-        if (!gameOver) updateDino();
-        drawDinoGame();
-      }
+            // Roll physics
+            if (subIsRolling) { subRollTimer--; if (subRollTimer <= 0) subIsRolling = false; }
 
-      if (gameOver) {
-        ctx.fillStyle = 'rgba(0,0,0,0.65)';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
+            // Score update
+            if (subFrameCount % 4 === 0) {
+                subScore += 1;
+                document.getElementById('subway-score').innerText = `Score: ${subScore} | Coins: ${subCoinCount}`;
+            }
 
-        ctx.fillStyle = '#fff';
-        ctx.textAlign = 'center';
-        ctx.font = 'bold 36px sans-serif';
-        ctx.fillText('GAME OVER', canvas.width / 2, canvas.height / 2 - 10);
+            // Spawn Obstacles (Train Barricades & High Lights)
+            if (subFrameCount % 70 === 0) {
+                let lane = Math.floor(Math.random() * 3);
+                let type = Math.random() > 0.5 ? 'low' : 'high'; // low = jump over, high = roll under
+                subObstacles.push({ x: subLanes[lane] - 18, y: -40, width: 36, height: 35, type: type, lane: lane });
+            }
 
-        ctx.font = '18px sans-serif';
-        ctx.fillText('Press SPACE or TAP to Restart', canvas.width / 2, canvas.height / 2 + 30);
-        ctx.textAlign = 'start';
-      } else {
-        animationId = requestAnimationFrame(gameLoop);
-      }
-    }
+            // Spawn Coins
+            if (subFrameCount % 40 === 0 && Math.random() > 0.4) {
+                let lane = Math.floor(Math.random() * 3);
+                subCoins.push({ x: subLanes[lane] - 10, y: -20, width: 20, height: 20, lane: lane });
+            }
 
-    // Start on load
-    initGame();
-  </script>
+            // Move Obstacles
+            for (let i = subObstacles.length - 1; i >= 0; i--) {
+                let ob = subObstacles[i]; ob.y += subSpeed;
+                
+                // Collision Detection
+                if (ob.lane === subCurrentLane && ob.y + ob.height > subPlayerY - 10 && ob.y < subPlayerY + 30) {
+                    if (ob.type === 'low' && subPlayerY > 230) subGameOver = true; // Didn't jump low barrier
+                    if (ob.type === 'high' && !subIsRolling) subGameOver = true; // Didn't duck high barrier
+                }
+                if (ob.y > subCanvas.height) subObstacles.splice(i, 1);
+            }
+
+            // Move Coins
+            for (let i = subCoins.length - 1; i >= 0; i--) {
+                let c = subCoins[i]; c.y += subSpeed;
+                if (c.lane === subCurrentLane && c.y + c.height > subPlayerY - 10 && c.y < subPlayerY + 30) {
+                    subCoinCount++; subCoins.splice(i, 1);
+                    document.getElementById('subway-score').innerText = `Score: ${subScore} | Coins: ${subCoinCount}`;
+                } else if (c.y > subCanvas.height) subCoins.splice(i, 1);
+            }
+        }
+
+        function drawSubway() {
+            subCtx.clearRect(0,0,subCanvas.width,subCanvas.height);
+            // Tracks
+            subCtx.fillStyle = "#334155"; subCtx.fillRect(0,0,subCanvas.width,subCanvas.height);
+            subCtx.strokeStyle = "#fbbf24"; subCtx.lineWidth = 3;
+            subCtx.beginPath(); subCtx.moveTo(105, 0); subCtx.lineTo(105, subCanvas.height); subCtx.stroke();
+            subCtx.beginPath(); subCtx.moveTo(195, 0); subCtx.lineTo(195, subCanvas.height); subCtx.stroke();
+
+            // Obstacles
+            subObstacles.forEach(ob => {
+                if (ob.type === 'low') {
+                    subCtx.fillStyle = "#ef4444"; subCtx.fillRect(ob.x, ob.y, ob.width, ob.height); // Train barricade
+                } else {
+                    subCtx.fillStyle = "#f59e0b"; subCtx.fillRect(ob.x, ob.y, ob.width, 15); // Overhead sign
+                }
+            });
+
+            // Coins
+            subCtx.fillStyle = "#facc15";
+            subCoins.forEach(c => { subCtx.beginPath(); subCtx.arc(c.x + 10, c.y + 10, 8, 0, Math.PI * 2); subCtx.fill(); });
+
+            // Player (Surfer Kid)
+            let px = subLanes[subCurrentLane] - 12;
+            let py = subPlayerY;
+            subCtx.fillStyle = subIsRolling ? "#38bdf8" : "#3b82f6";
+            let pHeight = subIsRolling ? 20 : 35;
+            subCtx.fillRect(px, py, 24, pHeight);
+            subCtx.fillStyle = "#fbcfe8"; subCtx.fillRect(px + 4, py - 8, 16, 8); // Head
+        }
+
+        /* ==========================================
+           2. SPACE SHOOTER
+        ========================================== */
+        const sCanvas = document.getElementById("space-canvas"), sCtx = sCanvas.getContext("2d");
+        let spacePlayerX = 135, spaceLasers = [], spaceInvaders = [], spaceScore = 0, spaceGameOver = false, spaceAnimationFrameId;
+        function resetSpaceGame() {
+            cancelAnimationFrame(spaceAnimationFrameId); spacePlayerX = 135; spaceLasers = []; spaceInvaders = []; spaceScore = 0; spaceGameOver = false;
+            document.getElementById('space-score').innerText = `Score: ${spaceScore}`;
+            for (let r = 0; r < 3; r++) for (let c = 0; c < 5; c++) spaceInvaders.push({ x: 25 + c * 50, y: 25 + r * 22, width: 25, height: 15 });
+            spaceLoop();
+        }
+        function spaceMoveLeft() { spacePlayerX = Math.max(0, spacePlayerX - 20); }
+        function spaceMoveRight() { spacePlayerX = Math.min(sCanvas.width - 30, spacePlayerX + 20); }
+        function shootSpaceLaser() { if (activeGameId === 'game-space') { if (spaceGameOver) resetSpaceGame(); else spaceLasers.push({ x: spacePlayerX + 13, y: 260, width: 4, height: 10 }); } }
+        function spaceLoop() {
+            if (activeGameId !== 'game-space') return;
+            if (spaceGameOver) { sCtx.fillStyle = "rgba(0,0,0,0.7)"; sCtx.fillRect(0,0,sCanvas.width,sCanvas.height); sCtx.fillStyle="#fff"; sCtx.textAlign="center"; sCtx.font="18px Arial"; sCtx.fillText("Fleet Destroyed! Score: "+spaceScore, sCanvas.width/2, sCanvas.height/2); return; }
+            spaceLasers.forEach(l => l.y -= 6); spaceLasers = spaceLasers.filter(l => l.y > 0);
+            spaceInvaders.forEach(inv => { inv.y += 0.15; if (inv.y + 15 >= 260) spaceGameOver = true; });
+            for (let l = spaceLasers.length - 1; l >= 0; l--) {
+                for (let i = spaceInvaders.length - 1; i >= 0; i--) {
+                    if (spaceLasers[l] && spaceLasers[l].x < spaceInvaders[i].x + 25 && spaceLasers[l].x + 4 > spaceInvaders[i].x && spaceLasers[l].y < spaceInvaders[i].y + 15) {
+                        spaceInvaders.splice(i, 1); spaceLasers.splice(l, 1); spaceScore += 10;
+                        document.getElementById('space-score').innerText = `Score: ${spaceScore}`; break;
+                    }
+                }
+            }
+            sCtx.clearRect(0, 0, sCanvas.width, sCanvas.height);
+            sCtx.fillStyle = "#10b981"; sCtx.fillRect(spacePlayerX, 260, 30, 15);
+            sCtx.fillStyle = "#ef4444"; spaceLasers.forEach(l => sCtx.fillRect(l.x, l.y, l.width, l.height));
+            sCtx.fillStyle = "#a78bfa"; spaceInvaders.forEach(inv => sCtx.fillRect(inv.x, inv.y, inv.width, inv.height));
+            if (spaceInvaders.length === 0) resetSpaceGame();
+            spaceAnimationFrameId = requestAnimationFrame(spaceLoop);
+        }
+
+        /* ==========================================
+           3. ZOMBIE SURVIVAL SHOOTER
+        ========================================== */
+        const zCanvas = document.getElementById("zombie-canvas"), zCtx = zCanvas.getContext("2d");
+        let zombiePlayer = { x: 160, y: 140, hp: 100 }, zombies = [], zBullets = [], zKills = 0, zombieGameOver = false, zombieAnimationFrameId;
+        function resetZombieGame() {
+            cancelAnimationFrame(zombieAnimationFrameId); zombiePlayer = { x: 160, y: 140, hp: 100 };
+            zombies = []; zBullets = []; zKills = 0; zombieGameOver = false;
+            document.getElementById('zombie-score').innerText = `Kills: ${zKills} | HP: ${zombiePlayer.hp}%`;
+            zombieLoop();
+        }
+        function zombieLoop() {
+            if (activeGameId !== 'game-zombie') return;
+            if (zombieGameOver) { zCtx.fillStyle = "rgba(0,0,0,0.8)"; zCtx.fillRect(0,0,zCanvas.width,zCanvas.height); zCtx.fillStyle="#ef4444"; zCtx.textAlign="center"; zCtx.font="bold 20px Arial"; zCtx.fillText("OVERRUN BY ZOMBIES!", zCanvas.width/2, zCanvas.height/2); return; }
+            if (Math.random() < 0.03 && zombies.length < 8) {
+                let side = Math.floor(Math.random() * 4);
+                let zx = side % 2 === 0 ? (side === 0 ? 0 : zCanvas.width) : Math.random() * zCanvas.width;
+                let zy = side % 2 !== 0 ? (side === 1 ? 0 : zCanvas.height) : Math.random() * zCanvas.height;
+                zombies.push({ x: zx, y: zy, hp: 30 });
+            }
+            zBullets.forEach(b => { b.x += b.vx; b.y += b.vy; });
+            zBullets = zBullets.filter(b => b.x > 0 && b.x < zCanvas.width && b.y > 0 && b.y < zCanvas.height);
+            zombies.forEach((z, zIdx) => {
+                let angle = Math.atan2(zombiePlayer.y - z.y, zombiePlayer.x - z.x);
+                z.x += Math.cos(angle) * 1.2; z.y += Math.sin(angle) * 1.2;
+                if (Math.hypot(zombiePlayer.x - z.x, zombiePlayer.y - z.y) < 15) {
+                    zombiePlayer.hp -= 0.5; document.getElementById('zombie-score').innerText = `Kills: ${zKills} | HP: ${Math.max(0, Math.floor(zombiePlayer.hp))}%`;
+                    if (zombiePlayer.hp <= 0) zombieGameOver = true;
+                }
+                zBullets.forEach((b, bIdx) => {
+                    if (Math.hypot(b.x - z.x, b.y - z.y) < 12) {
+                        z.hp -= 20; zBullets.splice(bIdx, 1);
+                        if (z.hp <= 0) { zombies.splice(zIdx, 1); zKills++; document.getElementById('zombie-score').innerText = `Kills: ${zKills} | HP: ${Math.floor(zombiePlayer.hp)}%`; }
+                    }
+                });
+            });
+            zCtx.clearRect(0,0,zCanvas.width,zCanvas.height);
+            zCtx.fillStyle = "#15803d"; zombies.forEach(z => { zCtx.beginPath(); zCtx.arc(z.x, z.y, 10, 0, Math.PI*2); zCtx.fill(); });
+            zCtx.fillStyle = "#f59e0b"; zBullets.forEach(b => { zCtx.beginPath(); zCtx.arc(b.x, b.y, 3, 0, Math.PI*2); zCtx.fill(); });
+            zCtx.fillStyle = "#3b82f6"; zCtx.beginPath(); zCtx.arc(zombiePlayer.x, zombiePlayer.y, 10, 0, Math.PI*2); zCtx.fill();
+            zombieAnimationFrameId = requestAnimationFrame(zombieLoop);
+        }
+        zCanvas.addEventListener('mousedown', (e) => {
+            if (activeGameId !== 'game-zombie') return;
+            if (zombieGameOver) { resetZombieGame(); return; }
+            const rect = zCanvas.getBoundingClientRect();
+            const angle = Math.atan2(e.clientY - rect.top - zombiePlayer.y, e.clientX - rect.left - zombiePlayer.x);
+            zBullets.push({ x: zombiePlayer.x, y: zombiePlayer.y, vx: Math.cos(angle)*7, vy: Math.sin(angle)*7 });
+        });
+
+        /* ==========================================
+           4. TARGET RANGE REFLEX SHOOTER
+        ========================================== */
+        const tCanvas = document.getElementById("target-canvas"), tCtx = tCanvas.getContext("2d");
+        let targetPos = { x: 160, y: 130 }, targetHits = 0, targetTime = 30, targetTimerInterval;
+        function resetTargetGame() {
+            clearInterval(targetTimerInterval); targetHits = 0; targetTime = 30; spawnTarget();
+            document.getElementById('target-score').innerText = `Hits: ${targetHits} | Time: ${targetTime}s`;
+            targetTimerInterval = setInterval(() => {
+                targetTime--; document.getElementById('target-score').innerText = `Hits: ${targetHits} | Time: ${targetTime}s`;
+                if (targetTime <= 0) { clearInterval(targetTimerInterval); alert(`Time's up! Total target hits: ${targetHits}!`); }
+            }, 1000);
+        }
+        function spawnTarget() {
+            targetPos.x = 30 + Math.random() * (tCanvas.width - 60);
+            targetPos.y = 30 + Math.random() * (tCanvas.height - 60);
+            drawTarget();
+        }
+        function drawTarget() {
+            tCtx.clearRect(0,0,tCanvas.width,tCanvas.height);
+            tCtx.fillStyle = "#ef4444"; tCtx.beginPath(); tCtx.arc(targetPos.x, targetPos.y, 20, 0, Math.PI*2); tCtx.fill();
+            tCtx.fillStyle = "#ffffff"; tCtx.beginPath(); tCtx.arc(targetPos.x, targetPos.y, 12, 0, Math.PI*2); tCtx.fill();
+            tCtx.fillStyle = "#ef4444"; tCtx.beginPath(); tCtx.arc(targetPos.x, targetPos.y, 5, 0, Math.PI*2); tCtx.fill();
+        }
+        tCanvas.addEventListener('mousedown', (e) => {
+            if (activeGameId !== 'game-target' || targetTime <= 0) return;
+            const rect = tCanvas.getBoundingClientRect();
+            if (Math.hypot(e.clientX - rect.left - targetPos.x, e.clientY - rect.top - targetPos.y) < 20) {
+                targetHits++; document.getElementById('target-score').innerText = `Hits: ${targetHits} | Time: ${targetTime}s`;
+                spawnTarget();
+            }
+        });
+
+        // Global Keyboard Listeners
+        window.addEventListener('keydown', e => {
+            if (activeGameId === 'game-subway') {
+                if (e.key === 'ArrowLeft' || e.key === 'a') moveSubwayLeft();
+                if (e.key === 'ArrowRight' || e.key === 'd') moveSubwayRight();
+                if (e.key === 'ArrowUp' || e.key === 'w' || e.code === 'Space') { e.preventDefault(); triggerSubwayJump(); }
+                if (e.key === 'ArrowDown' || e.key === 's') triggerSubwayRoll();
+            }
+            if (activeGameId === 'game-space') {
+                if (e.key === 'ArrowLeft' || e.key === 'a') spaceMoveLeft();
+                if (e.key === 'ArrowRight' || e.key === 'd') spaceMoveRight();
+                if (e.code === 'Space') { e.preventDefault(); shootSpaceLaser(); }
+            }
+        });
+
+        switchGame('game-subway');
+    </script>
 </body>
 </html>
